@@ -1,0 +1,66 @@
+---
+title: "Making the ESP8266 work with AWS IoT"
+date: 2019-02-18
+banner: ./hello-i-m-nik-616779-unsplash_resize2.jpg
+tags: 
+  - AWS
+  - IoT
+  - ESP8266
+  - TLS
+  - Arduino
+  - mqtt
+last_modified_at: 2019-03-05T06:45:00-05:00
+---
+
+It’s possible to use the ESP8266 with [AWS IoT Core](https://aws.amazon.com/iot-core/). It took me more time than I was expecting but in the end, it’s working great and with these few tips it’s possible the get this running very quickly. Once it’s done it gives the ESP8266 to a lot of exciting possibilities. 
+
+I have come across many examples that look like legit but which I couldn't get working properly. I strongly suspect that these examples were, in fact, working before the version [2.4.2 of Arduino core for ESP8266](https://github.com/esp8266/Arduino/releases/tag/2.4.2). Version 2.4.2 offers a new implementation of WiFiClientSecure based on BearSSL. I did not have time do to tests to confirm that but everything that will follow underline what I had to do to make an example from someone else work correctly for me at the time of writing this post.
+
+I have chosen to interact with AWS IoT using the MQTT protocol and x509 certificate to verify device identity on AWS IoT.
+
+Here what I have learned :
+
+* **Start with a basic example.** It’s possible to make this working using a simple Arduino sketch and some libraries. The example I have used is from [@copercini](https://github.com/copercini) on GitHub. **[Here is the fork I have made](https://github.com/raph84/esp8266-aws_iot/commit/e46cf5bb3b92f4825a2b01fb21c29db7c90f2555?diff=unified)** with some additions that were needed in order to get a successful TLS connection. I'm using **Arduino core for ESP8266 version 2.5.0**; if you are using a newer version and you are experiencing issues, make sure you check the changelog in order to see if there is been updated to the WifiClientSecure implementation.
+
+* **Get a meaningful error message when the TLS handshake fails.** The TLS handshake is processed by the WifiClientSecure class from Arduino Core for ESP8266. In case the connection to MQTT is not working you can retrieve the error message with a call to **WifiSecureClient.getLastSSLError** like this : 
+
+    {% gist ff1fc1896c58b7f50125bda23dee17ae wiFiClient.getLastSSLError.ino %}
+
+    It's the first thing you should add to your program in order to know where you are going when you troubleshoot.
+
+* **We need the current date/time to perform the TLS handshake.** It’s really easy to overlook this 
+one and this is where I wasted a lot of time! If the **current date/time** is not retrieved, before attempting a connection, you will most likely get the *"Certificate is expired or not yet valid."* error. In fact, the certificate validation process needs to know the current time to work properly. To learn more on that go read [Using Device Time to Validate AWS IoT Server Certificates](https://aws.amazon.com/blogs/iot/using-device-time-to-validate-aws-iot-server-certificates/)
+on the AWS blog. Here is a quick example of how to use NTP to retrieve the current date/time : 
+
+    {% gist ff1fc1896c58b7f50125bda23dee17ae ntp.ino %}
+
+    Once the NTP update is done, simple use WiFiClientSecure.setX509Time in order to feed it with the currect time.
+
+* **Store certificates and key in the SPIFFS file system of the ESP8266.** In order to perform the TLS handshake, you need :
+    * **A certificate** for the device. AWS IoT will generate it for you.
+    * **A private key** for the device. AWS IoT will also generate it together with the device certificate.
+    * **The Amazon CA certificate**. The CA certificate can be downloaded on [this page](https://docs.aws.amazon.com/iot/latest/developerguide/managing-device-certs.html); look for the *Server Authentication* section of this page. At this time I'm using the [*VeriSign Class 3 Public Primary G5 root CA certificate*](https://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem). It's legacy but it's still working for now.
+
+    When you get them from the AWS IoT console, all these files will be in the PEM format (text format encoded in base64). You need to convert them to the DER binary format using OpenSSL. There are binaries of OpenSSL for maybe every operating system and it's very straightforward to use :
+
+        openssl x509 -in "VeriSign-Class 3-Public-Primary-Certification-Authority-G5.pem" -out ca.der -outform DER
+    
+        openssl x509 -in device_cert.pem -out cert.der -outform DER
+
+        openssl rsa -in key.pem -out key.der -outform DER
+
+    Doing the TLS handshake already take a lot of the ESP8266 memory. I have not been able to store the certificates directly in the program source code as I have seen in many other examples; either my board was resetting or I got some *"Unknown error code."* from WifiSecureClient.getLastSSLError.
+
+    Use the [arduino-esp8266fs-plugin](https://github.com/esp8266/arduino-esp8266fs-plugin) to upload the 3 files to the SPIFFS file system of your board. Doing so will save memory for your program and it makes it easier to share your source code since your certificates won't be in it.
+
+    One last thing about the certificates. **If you don't provide the Amazon CA certificate**, WiFiClientSecure implementation will not be able to perform the certification path validation. You will most likely get the *"**Chain could not be linked to a trust anchor.**"* error. Make sure you load the CA certificate like this: 
+
+    {% gist ff1fc1896c58b7f50125bda23dee17ae espClient.loadCACert.ino %}
+
+* **Set the transmission buffer size** to a smaller size in order to make sure no chunk of transmitted data will overflow the memory you have at your disposition. See this page for more information on [**MFLN** or Maximum Fragment Length Negotiation](https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/bearssl-client-secure-class.html#mfln-or-maximum-fragment-length-negotiation-saving-ram). I'm using 512 kb buffers and it works flawlessly with AWS IoT. Don't forget to set the buffer size **before** connect() is called. 
+
+        espClient.setBufferSizes(512, 512);
+
+That's it, with all this you should be good to go. To get a better understanding of how TLS is implemented in the Arduino WiFi for ESP8266 library this documentation is really helpful: [BearSSL WiFi Classes](https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/bearssl-client-secure-class.rst)
+
+If you have any questions or if you want to share something interesting, feel free to leave a comment down bellow.
