@@ -91,5 +91,23 @@ module.exports = {
     `gatsby-plugin-typescript`,
     `gatsby-plugin-catch-links`,
     `gatsby-plugin-theme-ui`,
+    {
+      resolve: "gatsby-plugin-load-script",
+      options: {
+        src: "/__/firebase/7.19.0/firebase-app.js", // Change to the script filename
+      },
+    },
+    {
+      resolve: "gatsby-plugin-load-script",
+      options: {
+        src: "/__/firebase/7.19.0/firebase-analytics.js", // Change to the script filename
+      },
+    },
+    {
+      resolve: "gatsby-plugin-load-script",
+      options: {
+        src: "/__/firebase/init.js", // Change to the script filename
+      },
+    },
   ].filter(Boolean),
 };
