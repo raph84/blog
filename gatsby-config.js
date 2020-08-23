@@ -1,40 +1,26 @@
 require(`dotenv`).config({
   path: `.env`,
-})
+});
 
-const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE
+const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE;
+const feed = true;
+const feedTitle = `Raphael Berube - personnal web site`;
+
+const newsletterFeed = require(`./src/utils/newsletterFeed`);
 
 module.exports = {
   siteMetadata: {
-    siteTitleAlt: `Minimal Blog - Gatsby Theme`,
+    siteTitle: `Raphael Berube`,
+    siteTitleAlt: `Raphael Berube`,
+    siteHeadline: `Raphael Berube - personnal web site`,
+    siteUrl: `https://raphberube.com`,
+    siteDescription: `Raphael Berube - personnal web site`,
+    siteLanguage: `en`,
+    siteImage: `/banner.jpg`,
+    author: `@raph84`,
   },
+
   plugins: [
-    {
-      resolve: `@raph84/gatsby-theme-minimal-blog`,
-      // See the theme's README for all available options
-      options: {
-        navigation: [
-          {
-            title: `Blog`,
-            slug: `/blog`,
-          },
-          {
-            title: `About`,
-            slug: `/about`,
-          },
-        ],
-        externalLinks: [
-          {
-            name: `Twitter`,
-            url: `https://twitter.com/lekoarts_de`,
-          },
-          {
-            name: `Instagram`,
-            url: `https://www.instagram.com/lekoarts.de/`,
-          },
-        ],
-      },
-    },
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {
@@ -45,9 +31,9 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `minimal-blog - @lekoarts/gatsby-theme-minimal-blog`,
-        short_name: `minimal-blog`,
-        description: `Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and code highlighting.`,
+        name: `Raphael Berube`,
+        short_name: `Raphael Berube`,
+        description: `Personnal web site.`,
         start_url: `/`,
         background_color: `#fff`,
         theme_color: `#6B46C1`,
@@ -76,5 +62,34 @@ module.exports = {
         openAnalyzer: false,
       },
     },
+    {
+      resolve: `@raph84/gatsby-theme-minimal-blog-core`,
+      options: {
+        navigation: [
+          {
+            title: `Blog`,
+            slug: `/blog`,
+          },
+          {
+            title: `About`,
+            slug: `/about`,
+          },
+        ],
+        externalLinks: [
+          {
+            name: `GitHub`,
+            url: `https://github.com/raph84`,
+          },
+        ],
+      },
+    },
+    feed && {
+      resolve: `gatsby-plugin-feed`,
+      options: newsletterFeed(feedTitle),
+    },
+    `gatsby-plugin-react-helmet`,
+    `gatsby-plugin-typescript`,
+    `gatsby-plugin-catch-links`,
+    `gatsby-plugin-theme-ui`,
   ].filter(Boolean),
-}
+};
