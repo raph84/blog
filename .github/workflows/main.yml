@@ -22,18 +22,25 @@ jobs:
       - run: npm run test:ci
         env:
           CI: true
+      - name: Get github.event
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github.event) }}
+          run: echo "$GITHUB_CONTEXT"
       - uses: actions/github-script@0.2.0
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github.event) }}
         with:
           script: |
             github.pullRequests.createReview({
               owner: context.payload.repository.owner.login,
               repo: context.payload.repository.name,
-              pull_number: context.payload.pull_request.number,
+              #pull_number: context.payload.pull_request.number,
+              pull_number: github.event.prNumber,
               event: 'APPROVE'
             })
             github.pullRequests.merge({
               owner: context.payload.repository.owner.login,
               repo: context.payload.repository.name,
-              pull_number: context.payload.pull_request.number
+              pull_number: github.event.prNumber
             })
           github-token: ${{github.token}}
