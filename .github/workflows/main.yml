@@ -3,7 +3,7 @@ name: "Automerge Dependabot"
 on:
   pull_request:
   push:
-    branches: 
+    branches:
       - raph84-blog-dependabot
 
 jobs:
@@ -16,24 +16,24 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: "12.x"
       - run: npm install
       - run: npm run build --if-present
       - run: npm run test:ci
         env:
           CI: true
-#      - uses: actions/github-script@0.2.0
-#        with:
-#          script: |
-#            github.pullRequests.createReview({
-#              owner: context.payload.repository.owner.login,
-#              repo: context.payload.repository.name,
-#              pull_number: context.payload.pull_request.number,
-#              event: 'APPROVE'
-#            })
-#            github.pullRequests.merge({
-#              owner: context.payload.repository.owner.login,
-#              repo: context.payload.repository.name,
-#              pull_number: context.payload.pull_request.number
-#            })
-#          github-token: ${{github.token}}
+      - uses: actions/github-script@0.2.0
+        with:
+          script: |
+            github.pullRequests.createReview({
+              owner: context.payload.repository.owner.login,
+              repo: context.payload.repository.name,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE'
+            })
+            github.pullRequests.merge({
+              owner: context.payload.repository.owner.login,
+              repo: context.payload.repository.name,
+              pull_number: context.payload.pull_request.number
+            })
+          github-token: ${{github.token}}
