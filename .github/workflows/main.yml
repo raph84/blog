@@ -2,9 +2,6 @@ name: "Automerge Dependabot"
 
 on:
   pull_request:
-  push:
-    branches:
-      - raph84-blog-dependabot
 
 jobs:
   worker:
@@ -34,13 +31,12 @@ jobs:
             github.pullRequests.createReview({
               owner: context.payload.repository.owner.login,
               repo: context.payload.repository.name,
-              #pull_number: context.payload.pull_request.number,
-              pull_number: github.event.prNumber,
+              pull_number: context.payload.pull_request.number,
               event: 'APPROVE'
             })
             github.pullRequests.merge({
               owner: context.payload.repository.owner.login,
               repo: context.payload.repository.name,
-              pull_number: github.event.prNumber
+              pull_number: context.payload.pull_request.number
             })
           github-token: ${{github.token}}
