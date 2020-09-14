@@ -15,6 +15,7 @@
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test:ci": "start-server-and-test develop http://localhost:8000 jest",
+    "test:update": "start-server-and-test develop http://localhost:8000 jest -u",
     "test:local": "jest"
   },
   "dependencies": {

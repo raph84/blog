@@ -68,3 +68,5 @@ public
 .vscode
 .DS_Store
 .firebase/*.cache
+
+*/**/__diff_output__/**
