@@ -5,7 +5,7 @@ steps:
   - name: node:14
     entrypoint: npm
     args: ["install", "firebase-tools"]
-  - name: node:10.15.1
+  - name: node:14
     entrypoint: npm
     args: ["run-script", "build"]
   - name: "node:14"
