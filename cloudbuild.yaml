@@ -1,13 +1,13 @@
 steps:
-  - name: node:10.15.1
+  - name: node:14
     entrypoint: npm
     args: ["install"]
-  - name: node:10.15.1
+  - name: node:14
     entrypoint: npm
     args: ["install", "firebase-tools"]
   - name: node:10.15.1
     entrypoint: npm
     args: ["run-script", "build"]
-  - name: "node:10.15.1"
+  - name: "node:14"
     entrypoint: "./node_modules/.bin/firebase"
     args: ["deploy", "--project", "$PROJECT_ID", "--token", "$_TOKEN"]
