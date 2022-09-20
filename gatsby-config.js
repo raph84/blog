@@ -3,10 +3,10 @@ require(`dotenv`).config({
 });
 
 const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE;
-const feed = true;
-const feedTitle = `Raphael Berube - personnal web site`;
+//const feed = true;
+//const feedTitle = `Raphael Berube - personnal web site`;
 
-const newsletterFeed = require(`./src/utils/newsletterFeed`);
+//const newsletterFeed = require(`./src/utils/newsletterFeed`);
 
 module.exports = {
   siteMetadata: {
@@ -66,10 +66,10 @@ module.exports = {
       resolve: `@raph84/gatsby-theme-minimal-blog-core`,
       options: {
         navigation: [
-          {
-            title: `Blog`,
-            slug: `/blog`,
-          },
+          //{
+          //  title: `Blog`,
+          //  slug: `/blog`,
+          //},
           {
             title: `About`,
             slug: `/about`,
@@ -83,10 +83,10 @@ module.exports = {
         ],
       },
     },
-    feed && {
-      resolve: `gatsby-plugin-feed`,
-      options: newsletterFeed(feedTitle),
-    },
+    //feed && {
+    //  resolve: `gatsby-plugin-feed`,
+    //  options: newsletterFeed(feedTitle),
+    //},
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-typescript`,
     `gatsby-plugin-catch-links`,
