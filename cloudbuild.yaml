@@ -10,4 +10,4 @@ steps:
     args: ["run-script", "build"]
   - name: "node:14"
     entrypoint: "./node_modules/.bin/firebase"
-    args: ["deploy", "--project", "$PROJECT_ID", "--token", "$_TOKEN"]
+    args: ["deploy", "--project", "$PROJECT_ID"]
