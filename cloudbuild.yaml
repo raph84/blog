@@ -1,13 +1,12 @@
 steps:
-  - name: node:14
+  - name: node:22
+    entrypoint: bash
+    args:
+      - -c
+      - npm install -g pnpm@10.6.1 && pnpm install && pnpm build
+  - name: node:22
     entrypoint: npm
-    args: ['install']
-  - name: node:14
-    entrypoint: npm
-    args: ['install', 'firebase-tools']
-  - name: node:14
-    entrypoint: npm
-    args: ['run-script', 'build']
-  - name: 'node:14'
+    args: ['install', '-g', 'firebase-tools']
+  - name: 'node:22'
     entrypoint: './node_modules/.bin/firebase'
     args: ['deploy', '--project', '$PROJECT_ID']
