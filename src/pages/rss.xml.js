@@ -7,6 +7,7 @@ export async function GET(context) {
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 		site: context.site,
 		items: posts.map((post) => ({
 			...post.data,
