@@ -24,6 +24,7 @@ export default tseslint.config(
   eslintPluginAstro.configs['flat/jsx-a11y-recommended'],
   globalIgnores(['content/']), // ignore old content folder
   globalIgnores(['.astro/']),
+  globalIgnores(['.lintstagedrc.mjs']),
   {
     // override/add rules settings here, such as:
     // "astro/no-set-html-directive": "error"
