@@ -29,6 +29,19 @@ export default tseslint.config(
     // override/add rules settings here, such as:
     // "astro/no-set-html-directive": "error"
   },
+  {
+    // override/add rules settings here
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
   // {
   //   files: ['**/*.astro'],
   //   languageOptions: {
