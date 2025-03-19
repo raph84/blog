@@ -35,7 +35,7 @@
     "gatsby-plugin-react-helmet": "^3.3.10",
     "gatsby-plugin-sitemap": "^2.2.19",
     "gatsby-plugin-theme-ui": "^0.3.0",
-    "gatsby-plugin-typescript": "^2.4.17",
+    "gatsby-plugin-typescript": "^5.14.0",
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.10",
     "lodash.kebabcase": "^4.1.1",
     "mdx-utils": "^0.2.0",
