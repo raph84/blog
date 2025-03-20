@@ -22,9 +22,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, conne
 import { getFirebaseApp } from "../firebase/firebaseApp";
 const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-
 const auth = getAuth(getFirebaseApp());
-connectAuthEmulator(auth, "http://127.0.0.1:9099");
 
 let email;
 
