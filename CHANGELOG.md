@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/raph84/blog/compare/v2.0.0...v2.1.0) (2025-03-20)
+
+
+### Features
+
+* remote config setup ([67c272b](https://github.com/raph84/blog/commit/67c272b4cc13e287c560e91225d2c1620e9dc81f))
+
+
+### Bug Fixes
+
+* auth emulator only in dev ([d630e6c](https://github.com/raph84/blog/commit/d630e6c1d3e2b2b6b5a7e206dac0dc994f03d38b))
+
 ## 2.0.0 (2025-03-19)
 
 
