@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/raph84/blog/compare/v2.1.0...v2.1.1) (2025-03-20)
+
+
+### Bug Fixes
+
+* firebase headers to allow auth popup ([7c5c398](https://github.com/raph84/blog/commit/7c5c3988f1e352a743b0cbf25841e9468f5e1f0e))
+
 ## [2.1.0](https://github.com/raph84/blog/compare/v2.0.0...v2.1.0) (2025-03-20)
 
 
