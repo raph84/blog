@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/raph84/blog/compare/v2.1.1...v2.1.2) (2025-03-20)
+
+
+### Bug Fixes
+
+* firebase google auth ([5a4aa21](https://github.com/raph84/blog/commit/5a4aa219ea34a8bf1d02abfacfda282423c139b6))
+
 ## [2.1.1](https://github.com/raph84/blog/compare/v2.1.0...v2.1.1) (2025-03-20)
 
 
