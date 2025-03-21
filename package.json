@@ -4,6 +4,7 @@
   "version": "2.1.2",
   "scripts": {
     "dev": "astro dev",
+    "test": "vitest",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -29,6 +30,7 @@
     "prettier": "3.5.3",
     "prettier-plugin-astro": "0.14.1",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.0"
+    "typescript-eslint": "^8.26.0",
+    "vitest": "^3.0.9"
   }
 }
