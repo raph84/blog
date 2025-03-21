@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/raph84/blog/compare/v2.1.2...v2.2.0) (2025-03-21)
+
+
+### Features
+
+* display current version in footer ([1c019fe](https://github.com/raph84/blog/commit/1c019fe88fb8cd03a9a1dcf083aed607e0706cbc))
+
 ## [2.1.2](https://github.com/raph84/blog/compare/v2.1.1...v2.1.2) (2025-03-20)
 
 
