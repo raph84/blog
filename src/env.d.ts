@@ -1,7 +1,3 @@
-/// <reference types="vite-plugin-pwa/info" />
-/// <reference types="vite-plugin-pwa/pwa-assets" />
-/// <reference types="vite-plugin-pwa/vanillajs" />
-
 interface ImportMetaEnv {
   readonly FIREBASE_PRIVATE_KEY_ID: string;
   readonly FIREBASE_PRIVATE_KEY: string;
