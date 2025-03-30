@@ -7,6 +7,7 @@
   ],
   "exclude": ["dist"],
   "compilerOptions": {
+    "lib": ["ESNext", "DOM", "WebWorker"], // "ESNext", "DOM", "WebWorker" for pwa service worker
     "plugins": [
       {
         "name": "@astrojs/ts-plugin"
@@ -20,6 +21,7 @@
       "vite-plugin-pwa/vanillajs",
       "vite-plugin-pwa/info",
       "node"
-    ]
+    ],
+    "allowUnusedLabels": true
   }
 }

@@ -16,8 +16,13 @@ export default defineConfig({
     sitemap(),
     AstroPWA({
       registerType: 'autoUpdate',
-      strategies: 'generateSW',
+      strategies: 'injectManifest',
       // base: '/',
+      srcDir: 'src',
+      filename: 'sw.ts', // Service Worker
+      injectManifest: {
+        sourcemap: true,
+      },
       manifest: {
         name: 'raphberube.com',
         short_name: 'raphberube.com',
@@ -59,6 +64,7 @@ export default defineConfig({
       devOptions: {
         // enabled: true,
         enabled: SW_DEV === 'true',
+        type: 'module',
         navigateFallbackAllowlist: [/^\//],
       },
       experimental: {
