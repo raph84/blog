@@ -1,8 +1,12 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig /*envField*/ } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import AstroPWA from '@vite-pwa/astro';
+import { loadEnv } from 'vite';
+import process from 'node:process';
+
+const { SW_DEV } = loadEnv('env', process.cwd(), '');
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,6 +15,9 @@ export default defineConfig({
     mdx(),
     sitemap(),
     AstroPWA({
+      registerType: 'autoUpdate',
+      strategies: 'generateSW',
+      // base: '/',
       manifest: {
         name: 'raphberube.com',
         short_name: 'raphberube.com',
@@ -50,7 +57,8 @@ export default defineConfig({
         globPatterns: ['**/*.{css,js,html,svg,png,ico,txt}'],
       },
       devOptions: {
-        enabled: true,
+        // enabled: true,
+        enabled: SW_DEV === 'true',
         navigateFallbackAllowlist: [/^\//],
       },
       experimental: {
@@ -59,4 +67,13 @@ export default defineConfig({
       // ... other options
     }),
   ],
+  // env: {
+  //   schema: {
+  //     ENV_VAR: envField.string({
+  //       context: 'server',
+  //       access: 'public',
+  //       optional: true,
+  //     }),
+  //   },
+  // },
 });
