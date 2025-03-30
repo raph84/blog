@@ -7,12 +7,19 @@
   ],
   "exclude": ["dist"],
   "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@astrojs/ts-plugin"
+      }
+    ],
+    "verbatimModuleSyntax": true,
     "strictNullChecks": true,
     "types": [
       "vite/client",
       "vite-plugin-pwa/client",
       "vite-plugin-pwa/vanillajs",
-      "vite-plugin-pwa/info"
+      "vite-plugin-pwa/info",
+      "node"
     ]
   }
 }
