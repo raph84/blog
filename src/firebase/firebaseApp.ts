@@ -1,6 +1,5 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
 import {
   connectAuthEmulator,
   getAuth,
@@ -25,9 +24,6 @@ export const firebaseConfig = {
 
 // Initialize Firebase
 export const getFirebaseApp = () => initializeApp(firebaseConfig);
-
-// Initialize Firebase Analytics
-export const analytics = getAnalytics(getFirebaseApp());
 
 // Connect to the Firebase Auth emulator if in development mode
 if (import.meta.env.MODE === 'development') {
