@@ -15,13 +15,14 @@ export default defineConfig({
     mdx(),
     sitemap(),
     AstroPWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       strategies: 'injectManifest',
       // base: '/',
       srcDir: 'src',
       filename: 'sw.ts', // Service Worker
       injectManifest: {
         sourcemap: true,
+        enableWorkboxModulesLogs: true,
       },
       manifest: {
         name: 'raphberube.com',
@@ -58,6 +59,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        cleanupOutdatedCaches: true,
         navigateFallback: '/',
         globPatterns: ['**/*.{css,js,html,svg,png,ico,txt}'],
       },

@@ -8,4 +8,7 @@ registerSW({
   onOfflineReady() {
     console.log('PWA application ready to work offline');
   },
+  onNeedRefresh() {
+    console.log('New content is available; please refresh.');
+  },
 });
