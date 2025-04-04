@@ -2,6 +2,11 @@
   "name": "astro",
   "type": "module",
   "version": "2.2.0",
+  "packageManager": "pnpm@10.6.1",
+  "engines": {
+    "node": ">=22.14.0",
+    "pnpm": ">=10.6.1"
+  },
   "scripts": {
     "dev": "astro dev",
     "test": "vitest",
