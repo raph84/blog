@@ -32,6 +32,14 @@ export default tseslint.config(
   {
     // override/add rules settings here
     rules: {
+      'no-unused-vars': [
+        'error', // or 'error' if you want it to be an error
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

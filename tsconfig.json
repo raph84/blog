@@ -1,8 +1,27 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
+  "include": [
+    ".astro/types.d.ts",
+    "**/*",
+    "node_modules/vite-plugin-pwa/info.d.ts"
+  ],
   "exclude": ["dist"],
   "compilerOptions": {
-    "strictNullChecks": true
+    "lib": ["ESNext", "DOM", "WebWorker"], // "ESNext", "DOM", "WebWorker" for pwa service worker
+    "plugins": [
+      {
+        "name": "@astrojs/ts-plugin"
+      }
+    ],
+    "verbatimModuleSyntax": true,
+    "strictNullChecks": true,
+    "types": [
+      "vite/client",
+      "vite-plugin-pwa/client",
+      "vite-plugin-pwa/vanillajs",
+      "vite-plugin-pwa/info",
+      "node"
+    ],
+    "allowUnusedLabels": true
   }
 }

@@ -1,0 +1,37 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import HeadPwa from '../components/HeadPwa.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+---
+
+<script>
+  import { getFirebaseApp } from '../firebase/firebaseApp';
+  import { getAuth } from 'firebase/auth';
+  const auth = getAuth(getFirebaseApp());
+  await auth.authStateReady();
+  const user = auth.currentUser;
+  if (user) {
+    // User is signed in.
+    const uid = user.uid;
+    const email = user.email;
+    console.log('User is currently signed in:', { uid, email });
+  } else {
+    // No user is signed in.
+    console.log('No user is currently signed in.');
+    window.location.replace('/');
+  }
+</script>
+
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <HeadPwa />
+  </head>
+  <body>
+    <Header />
+    <main></main>
+    <Footer />
+  </body>
+</html>
