@@ -8,6 +8,8 @@ import process from 'node:process';
 
 import tailwindcss from '@tailwindcss/vite';
 
+import react from '@astrojs/react';
+
 const { SW_DEV } = loadEnv('env', process.cwd(), '');
 
 // https://astro.build/config
@@ -86,6 +88,7 @@ export default defineConfig({
       },
       // ... other options
     }),
+    react(),
   ],
 
   vite: {

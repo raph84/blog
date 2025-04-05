@@ -22,6 +22,8 @@
       "vite-plugin-pwa/info",
       "node"
     ],
-    "allowUnusedLabels": true
+    "allowUnusedLabels": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }
