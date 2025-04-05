@@ -7,6 +7,10 @@
   ],
   "exclude": ["dist"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "lib": ["ESNext", "DOM", "WebWorker"], // "ESNext", "DOM", "WebWorker" for pwa service worker
     "plugins": [
       {
