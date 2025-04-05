@@ -6,11 +6,23 @@ import AstroPWA from '@vite-pwa/astro';
 import { loadEnv } from 'vite';
 import process from 'node:process';
 
+import tailwindcss from '@tailwindcss/vite';
+
 const { SW_DEV } = loadEnv('env', process.cwd(), '');
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://raphberube.com',
+
+  // env: {
+  //   schema: {
+  //     ENV_VAR: envField.string({
+  //       context: 'server',
+  //       access: 'public',
+  //       optional: true,
+  //     }),
+  //   },
+  // },
   integrations: [
     mdx(),
     sitemap(),
@@ -75,13 +87,8 @@ export default defineConfig({
       // ... other options
     }),
   ],
-  // env: {
-  //   schema: {
-  //     ENV_VAR: envField.string({
-  //       context: 'server',
-  //       access: 'public',
-  //       optional: true,
-  //     }),
-  //   },
-  // },
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
