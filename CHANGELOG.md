@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/raph84/blog/compare/v2.2.0...v2.3.0) (2025-04-05)
+
+
+### Features
+
+* pwa app ([#35](https://github.com/raph84/blog/issues/35)) ([38738f9](https://github.com/raph84/blog/commit/38738f9d983b838df0bf27b7bcecbd7b136f0724))
+
 ## [2.2.0](https://github.com/raph84/blog/compare/v2.1.2...v2.2.0) (2025-03-21)
 
 
