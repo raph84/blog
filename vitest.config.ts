@@ -13,5 +13,10 @@ export default getViteConfig({
       include: ['src/**/*.astro', 'src/**/*.ts', 'src/**/*.tsx'],
       provider: 'v8',
     },
+    environmentOptions: {
+      jsdom: {
+        // Add any JSDOM-specific options here
+      },
+    },
   },
 });
