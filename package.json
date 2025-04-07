@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:react": "vitest run --config ./vitest.config.react.ts",
     "coverage": "vitest run --coverage",
     "build": "astro build",
     "preview": "astro preview",
