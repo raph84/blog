@@ -146,6 +146,9 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
         version: 0.6.11(prettier-plugin-astro@0.14.1)(prettier@3.5.3)
+      tsc:
+        specifier: ^2.0.4
+        version: 2.0.4
       typescript:
         specifier: ^5.8.2
         version: 5.8.2
@@ -10142,6 +10145,13 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4'
 
+  tsc@2.0.4:
+    resolution:
+      {
+        integrity: sha512-fzoSieZI5KKJVBYGvwbVZs/J5za84f2lSTLPYf6AGiIf43tZ3GNrI1QzTLcjtyDDP4aLxd46RTZq1nQxe7+k5Q==,
+      }
+    hasBin: true
+
   tsconfck@3.1.5:
     resolution:
       {
@@ -18295,6 +18305,8 @@ snapshots:
   ts-api-utils@2.0.1(typescript@5.8.2):
     dependencies:
       typescript: 5.8.2
+
+  tsc@2.0.4: {}
 
   tsconfck@3.1.5(typescript@5.8.2):
     optionalDependencies:
