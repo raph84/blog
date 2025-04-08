@@ -1,10 +1,10 @@
-/// <reference types="vitest" />
 import { getViteConfig } from 'astro/config';
 import react from '@vitejs/plugin-react';
 
 export default getViteConfig({
   plugins: [react()],
   test: {
+    name: 'astro', // Name of this test configuration
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     include: ['src/**/*.test.*'],
