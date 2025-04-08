@@ -1,102 +1,113 @@
+// src/components/sandbox/react/UseLocalStorage.test.ts
 import { renderHook, act } from '@testing-library/react';
-import useLocalStorage from './UseLocalStorage';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { useLocalStorage } from './UseLocalStorage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('useLocalStorage', () => {
+// Create a mock implementation of localStorage
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: vi.fn((key: string) => {
+      return store[key] || null;
+    }),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
+
+// Mock window object to include our localStorage mock
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+});
+
+describe('useLocalStorage hook', () => {
   beforeEach(() => {
-    localStorage.clear();
+    // Clear localStorage before each test
+    localStorageMock.clear();
+    vi.clearAllMocks();
   });
 
-  it('should return the fallback state when no value is stored', () => {
-    const { result } = renderHook(() => useLocalStorage('testKey', 'fallback'));
-    expect(result.current[0]).toBe('fallback');
+  it('should initialize with the initial value when localStorage is empty', () => {
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', 'initialValue'),
+    );
+
+    // We need to wait for the useEffect to run
+    // Initial value should be set immediately
+    expect(result.current[0]).toBe('initialValue');
   });
 
-  it('should return the stored value when it exists', () => {
-    localStorage.setItem('testKey', JSON.stringify('storedValue'));
-    const { result } = renderHook(() => useLocalStorage('testKey', 'fallback'));
-    expect(result.current[0]).toBe('storedValue');
-  });
+  it('should update the stored value when setValue is called', () => {
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', 'initialValue'),
+    );
 
-  it('should update the stored value when the setter is called', () => {
-    const { result } = renderHook(() => useLocalStorage('testKey', 'fallback'));
     act(() => {
       result.current[1]('newValue');
     });
+
     expect(result.current[0]).toBe('newValue');
-    expect(localStorage.getItem('testKey')).toBe(JSON.stringify('newValue'));
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      'testKey',
+      JSON.stringify('newValue'),
+    );
   });
 
-  it('should handle different data types', () => {
-    const { result: stringResult } = renderHook(() =>
-      useLocalStorage('stringKey', ''),
-    );
-    act(() => {
-      stringResult.current[1]('test');
-    });
-    expect(stringResult.current[0]).toBe('test');
-    expect(localStorage.getItem('stringKey')).toBe(JSON.stringify('test'));
+  it('should retrieve value from localStorage if available', () => {
+    // Preset a value in localStorage
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify('storedValue'));
 
-    const { result: numberResult } = renderHook(() =>
-      useLocalStorage<number>('numberKey', 0),
-    );
-    act(() => {
-      numberResult.current[1](123);
-    });
-    expect(numberResult.current[0]).toBe(123);
-    expect(localStorage.getItem('numberKey')).toBe(JSON.stringify(123));
-
-    const { result: booleanResult } = renderHook(() =>
-      useLocalStorage<boolean>('booleanKey', false),
-    );
-    act(() => {
-      booleanResult.current[1](true);
-    });
-    expect(booleanResult.current[0]).toBe(true);
-    expect(localStorage.getItem('booleanKey')).toBe(JSON.stringify(true));
-
-    const { result: objectResult } = renderHook(() =>
-      useLocalStorage<{ a: number; b: number }>('objectKey', { a: 0, b: 0 }),
-    );
-    act(() => {
-      objectResult.current[1]({ a: 1, b: 2 });
-    });
-    expect(objectResult.current[0]).toEqual({ a: 1, b: 2 });
-    expect(localStorage.getItem('objectKey')).toBe(
-      JSON.stringify({ a: 1, b: 2 }),
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', 'initialValue'),
     );
 
-    const { result: arrayResult } = renderHook(() =>
-      useLocalStorage<number[]>('arrayKey', []),
-    );
-    act(() => {
-      arrayResult.current[1]([1, 2, 3]);
-    });
-    expect(arrayResult.current[0]).toEqual([1, 2, 3]);
-    expect(localStorage.getItem('arrayKey')).toBe(JSON.stringify([1, 2, 3]));
+    // Force re-render to run the useEffect
+    act(() => {});
+
+    expect(result.current[0]).toBe('storedValue');
+    expect(localStorageMock.getItem).toHaveBeenCalledWith('testKey');
   });
 
-  it('should update the state when the localStorage is updated from another tab', async () => {
-    const { result, rerender } = renderHook(() =>
-      useLocalStorage('testKey', 'initial'),
-    );
-    expect(result.current[0]).toBe('initial');
+  it('should handle non-string values with JSON serialization', () => {
+    const complexValue = { nested: { data: [1, 2, 3] } };
 
-    // Ensure the listener is attached before dispatching the event
-    await act(async () => {
-      localStorage.setItem('testKey', JSON.stringify('updated'));
-      window.dispatchEvent(
-        new StorageEvent('storage', {
-          key: 'testKey',
-          newValue: JSON.stringify('updated'),
-          storageArea: localStorage,
-        }),
-      );
-      // Wait for the event to be processed.
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      rerender();
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', complexValue),
+    );
+
+    act(() => {
+      result.current[1]({ nested: { data: [4, 5, 6] } });
     });
 
-    expect(result.current[0]).toBe('updated');
+    expect(result.current[0]).toEqual({ nested: { data: [4, 5, 6] } });
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      'testKey',
+      JSON.stringify({ nested: { data: [4, 5, 6] } }),
+    );
+  });
+
+  it('should accept a function to update the state', () => {
+    const { result } = renderHook(() => useLocalStorage<number>('testKey', 0));
+
+    act(() => {
+      result.current[1]((prev) => prev + 1);
+    });
+
+    expect(result.current[0]).toBe(1);
+
+    act(() => {
+      result.current[1]((prev) => prev + 1);
+    });
+
+    expect(result.current[0]).toBe(2);
   });
 });

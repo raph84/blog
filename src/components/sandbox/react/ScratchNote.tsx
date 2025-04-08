@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { PaperPlaneRight } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
-import useLocalStorage from './UseLocalStorage';
+import { useLocalStorage } from './UseLocalStorage';
 import type { ScratchNote } from '@/schemas/scratchNote';
 
 type CardProps = React.ComponentProps<typeof Card>;
