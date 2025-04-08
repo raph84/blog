@@ -10,10 +10,18 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { PaperPlaneRight } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+import useLocalStorage from './UseLocalStorage';
+import type { ScratchNote } from '@/schemas/scratchNote';
 
 type CardProps = React.ComponentProps<typeof Card>;
 
 function ScratchNote({ className, ...props }: CardProps) {
+  const [notes, setNotes] = useLocalStorage<ScratchNote[]>('scratchNotes', []);
+
+  function addNote() {
+    return;
+  }
+
   return (
     <>
       <div className={cn('h-[400px] w-[380px]', className)} {...props}>
@@ -25,7 +33,7 @@ function ScratchNote({ className, ...props }: CardProps) {
           <CardContent className="grid grid-cols-1 gap-1">
             <Textarea />
             <div className="grid justify-items-end">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={addNote}>
                 <PaperPlaneRight size={32} />
               </Button>
             </div>
