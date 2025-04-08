@@ -20,7 +20,7 @@ function ScratchNote({ className, ...props }: CardProps) {
   const [notes, setNotes] = useLocalStorage<ScratchNote[]>('scratchNotes', []);
 
   const [inputText, setInputText] = useState('');
-  
+
   const [notesList, setNotesList] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -30,8 +30,15 @@ function ScratchNote({ className, ...props }: CardProps) {
   // Fonction pour ajouter une note à la liste
   const addNote = () => {
     if (inputText.trim() !== '') {
+      const dt = new Date();
+      const scratch = {
+        id: Date.now().toString(),
+        note: inputText,
+        createdAt: dt,
+      } as ScratchNote;
+      setNotes([...notes, scratch]);
       // Ajouter le texte à la liste des notes
-      setNotesList([...notesList, inputText]);
+      //setNotesList([...notesList, inputText]);
       // Réinitialiser le champ de texte
       setInputText('');
     }
@@ -59,14 +66,14 @@ function ScratchNote({ className, ...props }: CardProps) {
           </CardContent>
         </Card>
 
-        {notesList.length > 0 && (
+        {notes.length > 0 && (
           <div className="my-2 h-[200px] overflow-auto">
-            {notesList.map((note, index) => (
+            {notes.map((note, index) => (
               <div
                 key={index}
-                className="rounded-sm border bg-white p-4 text-sm"
+                className="mb-[2px] rounded-sm border bg-white p-4 text-sm"
               >
-                {note}
+                {note.note}
               </div>
             ))}
           </div>
