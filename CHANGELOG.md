@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.0](https://github.com/raph84/blog/compare/v2.4.0...v3.0.0) (2025-04-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **header:** The `<firebase-auth>` custom element has been removed and replaced with a standard `<div>` using Tailwind CSS classes for styling and layout. Any code directly targeting the old custom element tag name will need to be updated.
+
+### Features
+
+* **auth:** dispatch authStateChanged event and refactor FirebaseAuth ([f17145f](https://github.com/raph84/blog/commit/f17145f16a327ddfdd9cb5b1c326c8b95e08a68b))
+* **header:** implement responsive design with mobile navigation ([41120b9](https://github.com/raph84/blog/commit/41120b9ed04d51bff073649dfb916695cc91b24e))
+* **ui:** add conditional WebApp link to Header based on auth state ([f17145f](https://github.com/raph84/blog/commit/f17145f16a327ddfdd9cb5b1c326c8b95e08a68b))
+
 ## [2.4.0](https://github.com/raph84/blog/compare/v2.3.0...v2.4.0) (2025-04-09)
 
 
