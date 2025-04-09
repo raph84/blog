@@ -24,7 +24,8 @@
       "vite-plugin-pwa/client",
       "vite-plugin-pwa/vanillajs",
       "vite-plugin-pwa/info",
-      "node"
+      "node",
+      "@testing-library/jest-dom"
     ],
     "allowUnusedLabels": true,
     "jsx": "react-jsx",
