@@ -16,6 +16,42 @@ import { useState, useMemo } from 'react';
 
 type CardProps = React.ComponentProps<typeof Card>;
 
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkStringify from 'remark-stringify';
+import type { Options as RemarkStringifyOptions } from 'remark-stringify';
+
+const formatMarkdownWithRemark = async (text: string): Promise<string> => {
+  try {
+    // Définissez les options comme un objet séparé avec le type correct
+    const stringifyOptions: RemarkStringifyOptions = {
+      bullet: '-', // Utilise - pour les listes à puces
+      emphasis: '*', // Utilise * pour l'italique
+      strong: '**', // Utilise ** pour le gras
+      fence: '```', // Utilise ``` pour les blocs de code
+      fences: true, // Active les blocs de code avec ```
+      incrementListMarker: true, // Incrémente les marqueurs de liste numérotée
+      listItemIndent: 'one', // Niveau d'indentation des éléments de liste
+      resourceLink: true, // Utilise le format standard des liens [texte](url)
+      rule: '-', // Utilise - pour les lignes horizontales
+      ruleRepetition: 3, // Utilise --- pour les lignes horizontales
+      setext: false, // N'utilise pas les titres setext (===)
+      tightDefinitions: true, // Définitions compactes
+    };
+
+    // Configuration du processeur remark
+    const result = await unified()
+      .use(remarkParse)
+      .use(remarkStringify, stringifyOptions)
+      .process(text);
+
+    return String(result);
+  } catch (error) {
+    console.error('Erreur lors du formatage markdown:', error);
+    return text; // En cas d'erreur, retourne le texte non formaté
+  }
+};
+
 function ScratchNote({ className, ...props }: CardProps) {
   // Use useMemo to ensure the initialValue is stable across renders
   const initialNotes = useMemo(() => [], []);
@@ -30,12 +66,13 @@ function ScratchNote({ className, ...props }: CardProps) {
   };
 
   // Function to add a note to the list
-  const addNote = () => {
+  const addNote = async () => {
     if (inputText.trim() !== '') {
       const dt = new Date();
+      const text = await formatMarkdownWithRemark(inputText);
       const scratch = {
         id: Date.now().toString(),
-        note: inputText,
+        note: text,
         createdAt: dt,
       } as ScratchNoteData;
       setNotes([scratch, ...notes]);
@@ -54,12 +91,35 @@ function ScratchNote({ className, ...props }: CardProps) {
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-1">
             <Textarea
+              className="font-mono"
               onChange={handleInputChange}
               value={inputText}
-              onKeyDown={(e) => {
+              onKeyDown={async (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault(); // Prevent default to avoid newline
                   addNote();
+                } else if (e.key === 'Enter' && e.shiftKey) {
+                  e.preventDefault();
+                  const textarea = e.currentTarget;
+                  const selectionStart = textarea.selectionStart;
+                  const selectionEnd = textarea.selectionEnd;
+
+                  // Insert a newline at the current cursor position
+                  const newText =
+                    inputText.substring(0, selectionStart) +
+                    '\n' +
+                    inputText.substring(selectionEnd);
+
+                  const formattedText = await formatMarkdownWithRemark(newText);
+                  setInputText(formattedText);
+
+                  setTimeout(() => {
+                    textarea.focus();
+                    textarea.setSelectionRange(
+                      selectionStart + 1,
+                      selectionStart + 1,
+                    );
+                  }, 0);
                 }
               }}
             />
@@ -76,9 +136,9 @@ function ScratchNote({ className, ...props }: CardProps) {
             {notes.map((note) => (
               <div
                 key={note.id}
-                className="mb-[2px] rounded-sm border bg-white p-4 text-sm"
+                className="mb-[2px] rounded-sm border bg-white p-4 text-sm whitespace-pre-wrap"
               >
-                {note.note}
+                <p className="font-mono">{note.note}</p>
               </div>
             ))}
           </div>
