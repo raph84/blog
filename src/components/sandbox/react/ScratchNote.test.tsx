@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ScratchNote from './ScratchNote';
 import * as UseLocalStorageModule from './UseLocalStorage';
@@ -8,12 +8,38 @@ import type { ScratchNoteData } from '@/schemas/scratchNote';
 // Import React explicitly
 import * as React from 'react';
 
-// Mock the useLocalStorage hook
-vi.mock('./UseLocalStorage', () => ({
-  useLocalStorage: vi.fn().mockImplementation((key, initialValue) => {
-    return [initialValue, vi.fn()];
+// Mock the markdown processing modules
+vi.mock('unified', () => ({
+  unified: () => ({
+    use: () => ({
+      use: () => ({
+        process: (text: string) => Promise.resolve({ toString: () => text }),
+      }),
+    }),
   }),
 }));
+
+// Mock remark modules with proper default export
+vi.mock('remark-parse', () => {
+  return {
+    default: () => {},
+  };
+});
+
+vi.mock('remark-stringify', () => {
+  return {
+    default: () => {},
+  };
+});
+
+// Mock the useLocalStorage hook
+vi.mock('./UseLocalStorage', async () => {
+  const actual = await vi.importActual('./UseLocalStorage');
+  return {
+    ...actual,
+    useLocalStorage: vi.fn(),
+  };
+});
 
 describe('ScratchNote', () => {
   beforeEach(() => {
@@ -21,7 +47,11 @@ describe('ScratchNote', () => {
   });
 
   it('renders the ScratchNote component', () => {
-    // Simple minimal mocking approach
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
+      [],
+      vi.fn(),
+    ]);
+
     render(<ScratchNote />);
     expect(screen.getByText('Note')).toBeInTheDocument();
     expect(screen.getByText('Take a new note')).toBeInTheDocument();
@@ -29,6 +59,11 @@ describe('ScratchNote', () => {
   });
 
   it('should call useLocalStorage with the correct key and initial value', () => {
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
+      [],
+      vi.fn(),
+    ]);
+
     render(<ScratchNote />);
     expect(UseLocalStorageModule.useLocalStorage).toHaveBeenCalledWith(
       'scratchNotes',
@@ -37,11 +72,17 @@ describe('ScratchNote', () => {
   });
 
   it('allows entering text in the textarea', async () => {
-    const user = userEvent.setup();
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
+      [],
+      vi.fn(),
+    ]);
+
     render(<ScratchNote />);
 
     const textarea = screen.getByRole('textbox');
-    await user.type(textarea, 'Test note content');
+    await act(async () => {
+      await userEvent.type(textarea, 'Test note content');
+    });
 
     // Check that input received the content
     expect(textarea).toHaveValue('Test note content');
@@ -58,25 +99,31 @@ describe('ScratchNote', () => {
       mockSetNotes,
     ]);
 
-    // Render with the mocks
     render(<ScratchNote />);
 
     // Type some text in the textarea
     const textarea = screen.getByRole('textbox');
-    fireEvent.change(textarea, { target: { value: 'New test note' } });
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: 'New test note' } });
+    });
 
     // Click the button
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'));
+      // Allow any promises to resolve
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     // Verify the mock was called with the correct data
-    expect(mockSetNotes).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          note: 'New test note',
-          id: expect.any(String),
-        }),
-      ]),
+    expect(mockSetNotes).toHaveBeenCalled();
+    // Check the first argument of the first call
+    const firstCallArg = mockSetNotes.mock.calls[0][0];
+    expect(firstCallArg).toBeInstanceOf(Array);
+    expect(firstCallArg[0]).toEqual(
+      expect.objectContaining({
+        note: 'New test note',
+        id: expect.any(String),
+      }),
     );
 
     // Clean up the spy
@@ -94,24 +141,32 @@ describe('ScratchNote', () => {
       mockSetNotes,
     ]);
 
-    // Render with the mocks
     render(<ScratchNote />);
 
     // Type some text and press Enter
     const textarea = screen.getByRole('textbox');
-    fireEvent.change(textarea, {
-      target: { value: 'Note submitted with Enter' },
+    await act(async () => {
+      fireEvent.change(textarea, {
+        target: { value: 'Note submitted with Enter' },
+      });
     });
-    fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
+
+    await act(async () => {
+      fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
+      // Allow any promises to resolve
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     // Verify the mock was called with the correct data
-    expect(mockSetNotes).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          note: 'Note submitted with Enter',
-          id: expect.any(String),
-        }),
-      ]),
+    expect(mockSetNotes).toHaveBeenCalled();
+    // Check the first argument of the first call
+    const firstCallArg = mockSetNotes.mock.calls[0][0];
+    expect(firstCallArg).toBeInstanceOf(Array);
+    expect(firstCallArg[0]).toEqual(
+      expect.objectContaining({
+        note: 'Note submitted with Enter',
+        id: expect.any(String),
+      }),
     );
 
     // Clean up the spy
@@ -126,20 +181,29 @@ describe('ScratchNote', () => {
       mockSetNotes,
     ]);
 
-    // Render with the mocks
     render(<ScratchNote />);
 
     // Test with empty input - input is already empty by default
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'));
+      // Allow any promises to resolve
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     // Verify setNotes was not called
     expect(mockSetNotes).not.toHaveBeenCalled();
 
     // Test with whitespace-only input
     const textarea = screen.getByRole('textbox');
-    fireEvent.change(textarea, { target: { value: '   ' } });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: '   ' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'));
+      // Allow any promises to resolve
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     // Verify setNotes was still not called
     expect(mockSetNotes).not.toHaveBeenCalled();
@@ -182,20 +246,38 @@ describe('ScratchNote', () => {
       mockSetNotes,
     ]);
 
-    // Render with the mocks
+    // Set a consistent value for Date.now()
+    const mockDateNow = vi.spyOn(Date, 'now').mockReturnValue(123456789);
+
     render(<ScratchNote />);
 
     // Add a new note
     const textarea = screen.getByRole('textbox');
-    fireEvent.change(textarea, { target: { value: 'New note' } });
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: 'New note' } });
+    });
 
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'));
+      // Allow any promises to resolve
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     // Check if the new note was added at the beginning of the list
-    expect(mockSetNotes).toHaveBeenCalledWith([
-      expect.objectContaining({ note: 'New note' }),
-      ...existingNotes,
-    ]);
+    expect(mockSetNotes).toHaveBeenCalled();
+    const firstCallArg = mockSetNotes.mock.calls[0][0];
+
+    // Verify we have an array with the new note first, then the existing note
+    expect(firstCallArg).toBeInstanceOf(Array);
+    expect(firstCallArg.length).toBe(2);
+    expect(firstCallArg[0]).toEqual(
+      expect.objectContaining({
+        note: 'New note',
+      }),
+    );
+    expect(firstCallArg[1]).toEqual(existingNotes[0]);
+
+    // Clean up the spy
+    mockDateNow.mockRestore();
   });
 });
