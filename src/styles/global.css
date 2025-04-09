@@ -8,6 +8,20 @@
 
 @import 'tw-animate-css';
 
+header a,
+header a:visited,
+header a:hover,
+header a:focus,
+header a:active {
+  color: black !important;
+  text-decoration: none !important;
+}
+
+/* Force le titre du site à être noir quoi qu'il arrive */
+.site-title {
+  color: black !important;
+}
+
 /*
   ---break---
  */
