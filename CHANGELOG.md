@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.1](https://github.com/raph84/blog/compare/v2.5.0...v2.5.1) (2025-04-09)
+
+
+### Bug Fixes
+
+* **scratchnote:** taller textarea ([e341c54](https://github.com/raph84/blog/commit/e341c545875ac23180865ee0497ba1d37ab56404))
+
 ## [2.5.0](https://github.com/raph84/blog/compare/v2.4.0...v2.5.0) (2025-04-09)
 
 
