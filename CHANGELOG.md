@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.0](https://github.com/raph84/blog/compare/v2.4.0...v2.5.0) (2025-04-09)
+
+
+### Features
+
+* **auth:** dispatch authStateChanged event and refactor FirebaseAuth ([a393894](https://github.com/raph84/blog/commit/a393894e6c491f228ef0d166e68a8e71a62bcdc9))
+* **header:** implement responsive design with mobile navigation ([7c67619](https://github.com/raph84/blog/commit/7c676190a84a14b1ee0f5ee219cf95dc22d4e835))
+* **ui:** add conditional WebApp link to Header based on auth state ([a393894](https://github.com/raph84/blog/commit/a393894e6c491f228ef0d166e68a8e71a62bcdc9))
+
 ## [2.4.0](https://github.com/raph84/blog/compare/v2.3.0...v2.4.0) (2025-04-09)
 
 
