@@ -91,7 +91,7 @@ function ScratchNote({ className, ...props }: CardProps) {
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-1">
             <Textarea
-              className="font-mono"
+              className="h-[125px] font-mono"
               onChange={handleInputChange}
               value={inputText}
               onKeyDown={async (e) => {
