@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.2](https://github.com/raph84/blog/compare/v2.5.1...v2.5.2) (2025-04-09)
+
+
+### Bug Fixes
+
+* scratchnote textarea size ([f6204c8](https://github.com/raph84/blog/commit/f6204c8880dd3af515eda0acc971fa2682b16c0a))
+
 ## [2.5.1](https://github.com/raph84/blog/compare/v2.5.0...v2.5.1) (2025-04-09)
 
 
