@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.4.0](https://github.com/raph84/blog/compare/v2.3.0...v2.4.0) (2025-04-09)
+
+
+### Features
+
+* **astro:** add react integration ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+* Integrate Tailwind, Shadcn/UI, React and setup Vitest Workspace ([#41](https://github.com/raph84/blog/issues/41)) ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+* **sandbox:** implement scratch note component with local storage ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+* **styling:** integrate tailwindcss v4 ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+* **testing:** configure vitest workspace for astro and react ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+* **ui:** setup shadcn/ui and add base components ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+
+
+### Bug Fixes
+
+* **ui:** adjust sign-in icon size and path in FirebaseAuth ([297d8b0](https://github.com/raph84/blog/commit/297d8b0ba83c4b3ca36311d1aed77c09f6a1fb0f))
+
 ## [2.3.0](https://github.com/raph84/blog/compare/v2.2.0...v2.3.0) (2025-04-05)
 
 
