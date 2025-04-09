@@ -16,7 +16,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "prepare": "husky",
-    "emulator": "firebase emulators:start"
+    "emulator": "firebase emulators:start",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.2.3",

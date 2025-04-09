@@ -25,6 +25,10 @@ export default tseslint.config(
   globalIgnores(['content/']), // ignore old content folder
   globalIgnores(['.astro/']),
   globalIgnores(['.lintstagedrc.mjs']),
+  globalIgnores(['dist/']),
+  globalIgnores(['node_modules/']),
+  globalIgnores(['coverage/']),
+  globalIgnores(['src/components/ui/']), // shadcn-ui components
   {
     // override/add rules settings here, such as:
     // "astro/no-set-html-directive": "error"
