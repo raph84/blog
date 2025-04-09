@@ -1,4 +1,3 @@
-// src/components/sandbox/react/UseLocalStorage.test.ts
 import { renderHook, act } from '@testing-library/react';
 import { useLocalStorage } from './UseLocalStorage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,6 +14,8 @@ const localStorageMock = (() => {
       store[key] = value;
     }),
     removeItem: vi.fn((key: string) => {
+      // Use bracket notation to avoid ESLint error
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete store[key];
     }),
     clear: vi.fn(() => {
@@ -23,17 +24,17 @@ const localStorageMock = (() => {
   };
 })();
 
-// Mock window object to include our localStorage mock
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-  writable: true,
-});
-
 describe('useLocalStorage hook', () => {
   beforeEach(() => {
     // Clear localStorage before each test
     localStorageMock.clear();
     vi.clearAllMocks();
+
+    // Mock the window.localStorage property
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      writable: true,
+    });
   });
 
   it('should initialize with the initial value when localStorage is empty', () => {
@@ -41,7 +42,6 @@ describe('useLocalStorage hook', () => {
       useLocalStorage('testKey', 'initialValue'),
     );
 
-    // We need to wait for the useEffect to run
     // Initial value should be set immediately
     expect(result.current[0]).toBe('initialValue');
   });
@@ -69,9 +69,6 @@ describe('useLocalStorage hook', () => {
     const { result } = renderHook(() =>
       useLocalStorage('testKey', 'initialValue'),
     );
-
-    // Force re-render to run the useEffect
-    act(() => {});
 
     expect(result.current[0]).toBe('storedValue');
     expect(localStorageMock.getItem).toHaveBeenCalledWith('testKey');
@@ -109,5 +106,93 @@ describe('useLocalStorage hook', () => {
     });
 
     expect(result.current[0]).toBe(2);
+  });
+
+  it('should handle errors when reading from localStorage', () => {
+    // Mock an error when reading from localStorage
+    const originalGetItem = localStorageMock.getItem;
+    localStorageMock.getItem.mockImplementationOnce(() => {
+      throw new Error('Mock localStorage error');
+    });
+
+    // Spy on console.error to verify it's called
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {
+        // Implementation intentionally left empty for mock
+        return;
+      });
+
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', 'initialValue'),
+    );
+
+    // Initial value should be used when there's an error
+    expect(result.current[0]).toBe('initialValue');
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error reading from localStorage:',
+      expect.any(Error),
+    );
+
+    // Restore the original implementation
+    localStorageMock.getItem = originalGetItem;
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should handle errors when writing to localStorage', () => {
+    // Mock an error when writing to localStorage
+    const originalSetItem = localStorageMock.setItem;
+    localStorageMock.setItem.mockImplementationOnce(() => {
+      throw new Error('Mock localStorage error');
+    });
+
+    // Spy on console.error to verify it's called
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {
+        // Implementation intentionally left empty for mock
+        return;
+      });
+
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', 'initialValue'),
+    );
+
+    act(() => {
+      result.current[1]('newValue');
+    });
+
+    // Value should be updated in state but error logged
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error writing to localStorage:',
+      expect.any(Error),
+    );
+
+    // Restore the original implementation
+    localStorageMock.setItem = originalSetItem;
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should handle invalid JSON in localStorage', () => {
+    // Set invalid JSON in localStorage
+    localStorageMock.getItem.mockReturnValueOnce('not valid json');
+
+    // Spy on console.error to verify it's called
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {
+        // Implementation intentionally left empty for mock
+        return;
+      });
+
+    const { result } = renderHook(() =>
+      useLocalStorage('testKey', 'initialValue'),
+    );
+
+    // Should use initial value when JSON is invalid
+    expect(result.current[0]).toBe('initialValue');
+    expect(consoleErrorSpy).toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
   });
 });
