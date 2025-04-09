@@ -4,7 +4,8 @@
     "unifiedjs.vscode-mdx",
     "vitest.explorer",
     "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss"
   ],
   "unwantedRecommendations": []
 }

@@ -7,6 +7,10 @@
   ],
   "exclude": ["dist"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "lib": ["ESNext", "DOM", "WebWorker"], // "ESNext", "DOM", "WebWorker" for pwa service worker
     "plugins": [
       {
@@ -20,8 +24,11 @@
       "vite-plugin-pwa/client",
       "vite-plugin-pwa/vanillajs",
       "vite-plugin-pwa/info",
-      "node"
+      "node",
+      "@testing-library/jest-dom"
     ],
-    "allowUnusedLabels": true
+    "allowUnusedLabels": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

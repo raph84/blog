@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import HeadPwa from '../components/HeadPwa.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ScratchNoteComponent from '@/components/sandbox/ScratchNoteComponent.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 ---
 
@@ -31,7 +32,11 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
   </head>
   <body>
     <Header />
-    <main></main>
+    <main>
+      <div class="flex flex-col items-center">
+        <ScratchNoteComponent />
+      </div>
+    </main>
     <Footer />
   </body>
 </html>
