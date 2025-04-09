@@ -1,4 +1,4 @@
-export interface ScratchNote {
+export interface ScratchNoteData {
   id: string;
   note: string;
   createdAt: Date;
