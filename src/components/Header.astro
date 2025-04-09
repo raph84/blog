@@ -57,6 +57,13 @@ import FirebaseAuth from './FirebaseAuth.astro';
       </a>
     </div>
 
+    <!-- Navigation for larger screens -->
+    <nav class="hidden md:flex md:items-center md:gap-4">
+      <div id="nav-webapp-link" class="hidden">
+        <HeaderLink href="/webapp" class="text-black">WebApp</HeaderLink>
+      </div>
+    </nav>
+
     <!-- Auth and Social Icons - Always visible -->
     <div class="flex items-center gap-0">
       <FirebaseAuth />
@@ -84,8 +91,11 @@ import FirebaseAuth from './FirebaseAuth.astro';
   >
     <div class="space-y-1 border-t px-4 py-2 pb-3">
       <HeaderLink href="/" class="block py-2 text-black">Home</HeaderLink>
-      <!-- <HeaderLink href="/blog" class="block py-2 text-black">Blog</HeaderLink>
-      <HeaderLink href="/about" class="block py-2 text-black">About</HeaderLink> -->
+      <div id="mobile-nav-webapp-link" class="hidden">
+        <HeaderLink href="/webapp" class="block py-2 text-black"
+          >WebApp</HeaderLink
+        >
+      </div>
     </div>
   </div>
 </header>
@@ -115,4 +125,23 @@ import FirebaseAuth from './FirebaseAuth.astro';
       closeIcon.classList.toggle('hidden');
     });
   }
+
+  // Check authentication state to show/hide webapp link
+  import { onAuthStateChanged } from 'firebase/auth';
+  import { auth } from '../firebase/firebaseApp';
+
+  const navWebAppLink = document.getElementById('nav-webapp-link');
+  const mobileNavWebAppLink = document.getElementById('mobile-nav-webapp-link');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, show the webapp link
+      if (navWebAppLink) navWebAppLink.classList.remove('hidden');
+      if (mobileNavWebAppLink) mobileNavWebAppLink.classList.remove('hidden');
+    } else {
+      // User is signed out, hide the webapp link
+      if (navWebAppLink) navWebAppLink.classList.add('hidden');
+      if (mobileNavWebAppLink) mobileNavWebAppLink.classList.add('hidden');
+    }
+  });
 </script>

@@ -1,5 +1,5 @@
 ---
-// FirebaseAuth.astro - Refactored for better mobile display
+// FirebaseAuth.astro - Enhanced to provide better authentication state visibility
 ---
 
 <div class="firebase-auth inline-flex items-center justify-center">
@@ -45,21 +45,6 @@
   </div>
 
   <script>
-    const signInButton = document.getElementById('sign-in-button');
-    const userButton = document.getElementById('user-button');
-    const loginElement = document.getElementById('login');
-    const userElement = document.getElementById('user');
-
-    if (signInButton) {
-      signInButton.addEventListener('click', function () {
-        showSignIn();
-      });
-    }
-    if (userButton) {
-      userButton.addEventListener('click', async function () {
-        await auth.signOut();
-      });
-    }
     import {
       signInWithPopup,
       onAuthStateChanged,
@@ -67,49 +52,84 @@
     } from 'firebase/auth';
     import { googleAuthProvider, auth } from '../firebase/firebaseApp';
 
+    const signInButton = document.getElementById('sign-in-button');
+    const userButton = document.getElementById('user-button');
+    const loginElement = document.getElementById('login');
+    const userElement = document.getElementById('user');
+
     let email;
 
-    function showSignIn() {
-      signInWithPopup(auth, googleAuthProvider)
-        .then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const _token = credential?.accessToken;
-          // The signed-in user info.
-          const _user = result.user;
-          // IdP data available using getAdditionalUserInfo(result)
-          // ...
-        })
-        .catch((error) => {
-          // Handle Errors here.
-          const _errorCode = error.code;
-          const _errorMessage = error.message;
-          // The email of the user's account used.
-          email = error.customData.email;
-          // The AuthCredential type that was used.
-          const _credential = GoogleAuthProvider.credentialFromError(error);
-          // ...
-        });
+    // Handle sign-in button click
+    if (signInButton) {
+      signInButton.addEventListener('click', function () {
+        signInWithPopup(auth, googleAuthProvider)
+          .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const _token = credential?.accessToken;
+            // The signed-in user info.
+            const _user = result.user;
+            // IdP data available using getAdditionalUserInfo(result)
+          })
+          .catch((error) => {
+            // Handle Errors here.
+            const _errorCode = error.code;
+            const _errorMessage = error.message;
+            // The email of the user's account used.
+            email = error.customData?.email;
+            // The AuthCredential type that was used.
+            const _credential = GoogleAuthProvider.credentialFromError(error);
+            console.error('Authentication error:', _errorMessage);
+          });
+      });
     }
+
+    // Handle user button click (sign out)
+    if (userButton) {
+      userButton.addEventListener('click', async function () {
+        try {
+          await auth.signOut();
+        } catch (error) {
+          console.error('Sign out error:', error);
+        }
+      });
+    }
+
+    // Listen for authentication state changes
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
+        // User is signed in
         email = user.email;
-        const _authUser = user;
-        const userEmailElement = document.getElementById('user-email');
-
         if (loginElement) loginElement.classList.add('hidden');
         if (userElement) userElement.classList.remove('hidden');
-        if (userEmailElement)
+
+        const userEmailElement = document.getElementById('user-email');
+        if (userEmailElement) {
           userEmailElement.textContent = email || 'Signed In';
+        }
+
+        // Dispatch an event that other components can listen for
+        document.dispatchEvent(
+          new CustomEvent('authStateChanged', {
+            detail: { authenticated: true, user },
+          }),
+        );
       } else {
         // User is signed out
-        const userEmailElement = document.getElementById('user-email');
-
         if (loginElement) loginElement.classList.remove('hidden');
         if (userElement) userElement.classList.add('hidden');
-        if (userEmailElement) userEmailElement.textContent = 'Not signed in';
+
+        const userEmailElement = document.getElementById('user-email');
+        if (userEmailElement) {
+          userEmailElement.textContent = 'Not signed in';
+        }
+
+        // Dispatch an event for sign-out
+        document.dispatchEvent(
+          new CustomEvent('authStateChanged', {
+            detail: { authenticated: false, user: null },
+          }),
+        );
       }
     });
   </script>
