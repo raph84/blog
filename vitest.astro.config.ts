@@ -1,5 +1,6 @@
 import { getViteConfig } from 'astro/config';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 export default getViteConfig({
   plugins: [react()],
@@ -12,6 +13,12 @@ export default getViteConfig({
     coverage: {
       include: ['src/**/*.astro', 'src/**/*.ts', 'src/**/*.tsx'],
       provider: 'v8',
+    },
+    mockReset: true, // Reset mocks between each test
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
     },
   },
 });
