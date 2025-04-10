@@ -171,8 +171,8 @@ function ScratchNote({ className, ...props }: CardProps) {
   };
 
   return (
-    <>
-      <div className={cn('h-[400px] w-[380px]', className)} {...props}>
+    <div className="flex flex-col">
+      <div className={cn('w-[380px]', className)} {...props}>
         <Card className="rounded-sm">
           <CardHeader>
             <CardTitle>Note</CardTitle>
@@ -220,11 +220,11 @@ function ScratchNote({ className, ...props }: CardProps) {
         </Card>
 
         {notes.length > 0 && (
-          <div className="my-2 h-[200px] overflow-auto">
+          <div className="my-2 mb-2 flex flex-col space-y-1">
             {notes.map((note) => (
               <div
                 key={note.id}
-                className="mb-[2px] rounded-sm border bg-white p-4 text-sm whitespace-pre-wrap"
+                className="rounded-sm border bg-white p-2 text-sm whitespace-pre-wrap"
               >
                 <p className="font-mono">{note.note}</p>
               </div>
@@ -232,7 +232,7 @@ function ScratchNote({ className, ...props }: CardProps) {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
