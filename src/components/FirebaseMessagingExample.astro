@@ -1,0 +1,183 @@
+---
+// FirebaseMessagingExample.astro - A component showing how to use Firebase Cloud Messaging
+---
+
+<div class="firebase-messaging-example my-4 rounded border bg-white p-4 shadow">
+  <h2 class="mb-4 text-xl font-bold">Firebase Cloud Messaging</h2>
+
+  <div class="mb-4 rounded bg-blue-50 p-3 text-sm">
+    <p class="mb-2">
+      <strong>Note:</strong> To enable Firebase Cloud Messaging on your website,
+      you need to configure Firebase with a valid VAPID key and implement the necessary
+      backend.
+    </p>
+    <p>
+      For testing purposes, you can use the interface below to simulate
+      server-sent push notifications.
+    </p>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="mb-2 font-medium">Send Push Notification</h3>
+    <p class="mb-3 text-sm text-gray-600">
+      This simulates sending a notification from your server.
+    </p>
+
+    <div class="grid gap-3">
+      <div>
+        <label
+          for="fcm-notification-title"
+          class="mb-1 block text-sm font-medium">Title</label
+        >
+        <input
+          type="text"
+          id="fcm-notification-title"
+          class="w-full rounded border p-2"
+          value="Server Notification"
+        />
+      </div>
+
+      <div>
+        <label
+          for="fcm-notification-body"
+          class="mb-1 block text-sm font-medium">Message</label
+        >
+        <textarea
+          id="fcm-notification-body"
+          class="h-24 w-full rounded border p-2"
+          >This notification simulates one sent from your server.</textarea
+        >
+      </div>
+
+      <div>
+        <label
+          for="fcm-notification-url"
+          class="mb-1 block text-sm font-medium"
+        >
+          Destination URL (optional)
+        </label>
+        <input
+          type="text"
+          id="fcm-notification-url"
+          class="w-full rounded border p-2"
+          placeholder="/webapp"
+        />
+      </div>
+
+      <div class="pt-2">
+        <button
+          id="send-fcm-notification-btn"
+          class="rounded bg-primary px-4 py-2 text-white hover:bg-primary/90"
+          disabled
+        >
+          Simulate Server Notification
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h3 class="mb-2 font-medium">FCM Registration Status</h3>
+    <div id="fcm-status" class="rounded bg-gray-100 p-2 text-sm">
+      Checking FCM status...
+    </div>
+  </div>
+</div>
+
+<script>
+  import { notificationService } from '../services/NotificationService';
+
+  // DOM elements
+  const sendButton = document.getElementById(
+    'send-fcm-notification-btn',
+  ) as HTMLButtonElement;
+  const titleInput = document.getElementById(
+    'fcm-notification-title',
+  ) as HTMLInputElement;
+  const bodyInput = document.getElementById(
+    'fcm-notification-body',
+  ) as HTMLTextAreaElement;
+  const urlInput = document.getElementById(
+    'fcm-notification-url',
+  ) as HTMLInputElement;
+  const statusDiv = document.getElementById('fcm-status');
+
+  // Update status display
+  const updateStatus = (message: string, isError = false) => {
+    if (statusDiv) {
+      statusDiv.textContent = message;
+      statusDiv.className = `text-sm p-2 rounded ${isError ? 'bg-red-100' : 'bg-gray-100'}`;
+    }
+  };
+
+  // Check if FCM is supported and notification permission is granted
+  const checkFCMStatus = async () => {
+    const permissionStatus = notificationService.getPermissionStatus();
+
+    if (permissionStatus !== 'granted') {
+      updateStatus(
+        'Notification permission not granted. Please enable notifications first.',
+        true,
+      );
+      if (sendButton) sendButton.disabled = true;
+      return false;
+    }
+
+    try {
+      const token = await notificationService.getFCMToken();
+      if (token) {
+        updateStatus(`FCM registered successfully. Token obtained.`, false);
+        if (sendButton) sendButton.disabled = false;
+        return true;
+      } else {
+        updateStatus('FCM registration failed or token not available.', true);
+        if (sendButton) sendButton.disabled = true;
+        return false;
+      }
+    } catch (error) {
+      updateStatus(`FCM error: ${(error as Error).message}`, true);
+      if (sendButton) sendButton.disabled = true;
+      return false;
+    }
+  };
+
+  // Simulate server notification
+  const simulateServerNotification = () => {
+    const title = titleInput?.value || 'Server Notification';
+    const body = bodyInput?.value || 'This is a simulated server notification';
+    const url = urlInput?.value || undefined;
+
+    try {
+      // In a real app, this would be handled by your server sending to FCM
+      // Here we're just using the local notification API to simulate it
+      const success = notificationService.showLocalNotification(title, body, {
+        type: 'server-push',
+        url,
+        timestamp: new Date().toISOString(),
+      });
+
+      updateStatus(
+        success
+          ? `Simulated server notification sent at ${new Date().toLocaleTimeString()}`
+          : 'Failed to send notification',
+        !success,
+      );
+    } catch (error) {
+      updateStatus(
+        'Error sending notification: ' + (error as Error).message,
+        true,
+      );
+    }
+  };
+
+  // Set up event listeners
+  if (sendButton) {
+    sendButton.addEventListener('click', simulateServerNotification);
+  }
+
+  // Initialize
+  checkFCMStatus();
+
+  // Listen for permission changes
+  document.addEventListener('authStateChanged', checkFCMStatus);
+</script>

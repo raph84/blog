@@ -2,6 +2,7 @@
 import HeaderLink from './HeaderLink.astro';
 import { SITE_TITLE } from '../consts';
 import FirebaseAuth from './FirebaseAuth.astro';
+import NotificationButton from './NotificationButton.astro';
 ---
 
 <header class="w-full border-b bg-white shadow-sm">
@@ -62,10 +63,20 @@ import FirebaseAuth from './FirebaseAuth.astro';
       <div id="nav-webapp-link" class="hidden">
         <HeaderLink href="/webapp" class="text-black">WebApp</HeaderLink>
       </div>
+      <div id="nav-notifications-link" class="hidden">
+        <HeaderLink href="/notifications" class="text-black"
+          >Notifications</HeaderLink
+        >
+      </div>
     </nav>
 
     <!-- Auth and Social Icons - Always visible -->
-    <div class="flex items-center gap-0">
+    <div class="flex items-center gap-2">
+      <!-- Authentication-only buttons will be hidden by default and shown when authenticated -->
+      <div id="auth-only-buttons" class="flex hidden items-center gap-2">
+        <NotificationButton />
+        <!-- Add other authenticated-only buttons here -->
+      </div>
       <FirebaseAuth />
       <a
         href="https://github.com/raph84"
@@ -94,6 +105,11 @@ import FirebaseAuth from './FirebaseAuth.astro';
       <div id="mobile-nav-webapp-link" class="hidden">
         <HeaderLink href="/webapp" class="block py-2 text-black"
           >WebApp</HeaderLink
+        >
+      </div>
+      <div id="mobile-nav-notifications-link" class="hidden">
+        <HeaderLink href="/notifications" class="block py-2 text-black"
+          >Notifications</HeaderLink
         >
       </div>
     </div>
@@ -132,16 +148,31 @@ import FirebaseAuth from './FirebaseAuth.astro';
 
   const navWebAppLink = document.getElementById('nav-webapp-link');
   const mobileNavWebAppLink = document.getElementById('mobile-nav-webapp-link');
+  const navNotificationsLink = document.getElementById(
+    'nav-notifications-link',
+  );
+  const mobileNavNotificationsLink = document.getElementById(
+    'mobile-nav-notifications-link',
+  );
+  const authOnlyButtons = document.getElementById('auth-only-buttons');
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // User is signed in, show the webapp link
+      // User is signed in, show authenticated-only elements
       if (navWebAppLink) navWebAppLink.classList.remove('hidden');
       if (mobileNavWebAppLink) mobileNavWebAppLink.classList.remove('hidden');
+      if (navNotificationsLink) navNotificationsLink.classList.remove('hidden');
+      if (mobileNavNotificationsLink)
+        mobileNavNotificationsLink.classList.remove('hidden');
+      if (authOnlyButtons) authOnlyButtons.classList.remove('hidden');
     } else {
-      // User is signed out, hide the webapp link
+      // User is signed out, hide authenticated-only elements
       if (navWebAppLink) navWebAppLink.classList.add('hidden');
       if (mobileNavWebAppLink) mobileNavWebAppLink.classList.add('hidden');
+      if (navNotificationsLink) navNotificationsLink.classList.add('hidden');
+      if (mobileNavNotificationsLink)
+        mobileNavNotificationsLink.classList.add('hidden');
+      if (authOnlyButtons) authOnlyButtons.classList.add('hidden');
     }
   });
 </script>
