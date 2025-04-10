@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.6.0](https://github.com/raph84/blog/compare/v2.5.2...v2.6.0) (2025-04-10)
+
+
+### Features
+
+* pwa notification ([3898593](https://github.com/raph84/blog/commit/3898593aa0acdee1ea39064b16a12d4381e28c80))
+* technotes section ([31afaad](https://github.com/raph84/blog/commit/31afaadab94ee0d56c68bc4c5c67cbab23031bcf))
+
+
+### Bug Fixes
+
+* less padding in textarea ([9029af9](https://github.com/raph84/blog/commit/9029af9de40194ebbbe4415f3c805f0d87e06d2c))
+* notes scrolling ([46163e4](https://github.com/raph84/blog/commit/46163e474c3e64afe2bdf0873d55cf6498b7c286))
+
 ## [2.5.2](https://github.com/raph84/blog/compare/v2.5.1...v2.5.2) (2025-04-09)
 
 
