@@ -180,7 +180,7 @@ function ScratchNote({ className, ...props }: CardProps) {
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-1">
             <Textarea
-              className="h-[150px] font-mono text-xs"
+              className="h-[150px] p-1 font-mono text-xs"
               onChange={handleInputChange}
               value={inputText}
               onKeyDown={async (e) => {
@@ -224,7 +224,7 @@ function ScratchNote({ className, ...props }: CardProps) {
             {notes.map((note) => (
               <div
                 key={note.id}
-                className="rounded-sm border bg-white p-2 text-sm whitespace-pre-wrap"
+                className="mb-[2px] rounded-sm border bg-white p-2 font-mono text-xs whitespace-pre-wrap"
               >
                 <p className="font-mono">{note.note}</p>
               </div>
