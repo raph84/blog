@@ -60,6 +60,7 @@ import NotificationButton from './NotificationButton.astro';
 
     <!-- Navigation for larger screens -->
     <nav class="hidden md:flex md:items-center md:gap-4">
+      <HeaderLink href="/technotes" class="text-black">Tech Notes</HeaderLink>
       <div id="nav-webapp-link" class="hidden">
         <HeaderLink href="/webapp" class="text-black">WebApp</HeaderLink>
       </div>
@@ -102,6 +103,9 @@ import NotificationButton from './NotificationButton.astro';
   >
     <div class="space-y-1 border-t px-4 py-2 pb-3">
       <HeaderLink href="/" class="block py-2 text-black">Home</HeaderLink>
+      <HeaderLink href="/technotes" class="block py-2 text-black"
+        >Tech Notes</HeaderLink
+      >
       <div id="mobile-nav-webapp-link" class="hidden">
         <HeaderLink href="/webapp" class="block py-2 text-black"
           >WebApp</HeaderLink
