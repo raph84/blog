@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 
-import { PaperPlaneRight } from '@phosphor-icons/react';
+import { PaperPlaneRight, ClipboardText, Trash } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from './UseLocalStorage';
 import type { ScratchNoteData } from '@/schemas/scratchNote';
@@ -66,12 +66,24 @@ const formatMarkdownWithRemark = async (text: string): Promise<string> => {
   }
 };
 
+// Define a type for archived note sets
+interface ArchivedNotes {
+  timestamp: string;
+  notes: ScratchNoteData[];
+}
+
 function ScratchNote({ className, ...props }: CardProps) {
   // Use useMemo to ensure the initialValue is stable across renders
   const initialNotes = useMemo(() => [], []);
+  const initialArchives = useMemo(() => [] as ArchivedNotes[], []);
+
   const [notes, setNotes] = useLocalStorage<ScratchNoteData[]>(
     'scratchNotes',
     initialNotes,
+  );
+  const [archivedNotes, setArchivedNotes] = useLocalStorage<ArchivedNotes[]>(
+    'scratchNotesArchive',
+    initialArchives,
   );
   const [inputText, setInputText] = useState('');
 
@@ -170,6 +182,109 @@ function ScratchNote({ className, ...props }: CardProps) {
     }
   };
 
+  // Function to compile notes by date and create markdown
+  const compileNotesToMarkdown = (): string => {
+    if (notes.length === 0) return '';
+
+    // Group notes by date
+    const groupedNotes: Record<string, ScratchNoteData[]> = {};
+
+    notes.forEach((note) => {
+      // Convert to local date string, just take the date part (YYYY-MM-DD)
+      const date = new Date(note.createdAt).toLocaleDateString('en-CA'); // 'en-CA' gives YYYY-MM-DD format
+
+      if (!groupedNotes[date]) {
+        groupedNotes[date] = [];
+      }
+
+      groupedNotes[date].push(note);
+    });
+
+    // Create markdown content with date headers
+    let markdownContent = '';
+
+    // Sort dates in descending order (newest first)
+    const sortedDates = Object.keys(groupedNotes).sort().reverse();
+
+    sortedDates.forEach((date) => {
+      markdownContent += `# ${date}\n\n`;
+
+      // Add each note under this date
+      groupedNotes[date].forEach((note) => {
+        // Process the note to increase heading levels if they exist
+        // This ensures headings in notes are properly nested under the date heading
+        let processedNote = note.note;
+
+        // Check if the note contains headings (lines starting with #)
+        processedNote = processedNote.replace(
+          /^(#{1,5}) (.+)$/gm,
+          (match, hashes, text) => {
+            // Add one more # to the heading to make it a sublevel of the date heading
+            return `${hashes}# ${text}`;
+          },
+        );
+
+        markdownContent += `${processedNote}\n\n`;
+      });
+    });
+
+    return markdownContent;
+  };
+
+  // Function to copy notes to clipboard
+  const copyNotesToClipboard = () => {
+    if (notes.length === 0) return;
+
+    const markdownContent = compileNotesToMarkdown();
+
+    // Copy to clipboard
+    if (!isTestEnvironment()) {
+      navigator.clipboard
+        .writeText(markdownContent)
+        .then(() => {
+          alert('Notes copied to clipboard!');
+        })
+        .catch((err) => {
+          console.error('Failed to copy notes: ', err);
+          alert('Failed to copy notes to clipboard.');
+        });
+    }
+  };
+
+  // Function to clear notes but keep a backup in local storage
+  const clearNotes = () => {
+    if (notes.length === 0) return;
+
+    // First, copy to clipboard
+    const markdownContent = compileNotesToMarkdown();
+
+    // Create an archive entry
+    const archiveEntry: ArchivedNotes = {
+      timestamp: new Date().toISOString(),
+      notes: [...notes],
+    };
+
+    // Add to archives, keeping only the last 3
+    const updatedArchives = [archiveEntry, ...archivedNotes].slice(0, 3);
+    setArchivedNotes(updatedArchives);
+
+    // Clear the current notes
+    setNotes([]);
+
+    // Copy to clipboard
+    if (!isTestEnvironment()) {
+      navigator.clipboard
+        .writeText(markdownContent)
+        .then(() => {
+          alert('Notes cleared and copied to clipboard!');
+        })
+        .catch((err) => {
+          console.error('Failed to copy notes: ', err);
+          alert('Notes cleared but failed to copy to clipboard.');
+        });
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <div className={cn('w-[380px]', className)} {...props}>
@@ -211,7 +326,28 @@ function ScratchNote({ className, ...props }: CardProps) {
                 }
               }}
             />
-            <div className="grid justify-items-end">
+            <div className="flex items-center justify-between">
+              <div className="flex space-x-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={copyNotesToClipboard}
+                  title="Copy all notes to clipboard"
+                  disabled={notes.length === 0}
+                >
+                  <ClipboardText size={24} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearNotes}
+                  title="Clear notes (copies to clipboard and archives)"
+                  disabled={notes.length === 0}
+                  className="text-red-500 hover:bg-red-50 hover:text-red-700"
+                >
+                  <Trash size={24} />
+                </Button>
+              </div>
               <Button variant="ghost" size="icon" onClick={addNote}>
                 <PaperPlaneRight size={32} />
               </Button>
@@ -229,6 +365,38 @@ function ScratchNote({ className, ...props }: CardProps) {
                 <p className="font-mono">{note.note}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {archivedNotes.length > 0 && (
+          <div className="mt-4 mb-2">
+            <h3 className="mb-2 text-sm font-medium text-gray-500">
+              Archived Notes ({archivedNotes.length})
+            </h3>
+            <div className="flex flex-col space-y-1">
+              {archivedNotes.map((archive, index) => (
+                <div key={index} className="rounded-sm border bg-gray-50 p-2">
+                  <p className="mb-1 text-xs text-gray-500">
+                    {new Date(archive.timestamp).toLocaleString()} (
+                    {archive.notes.length} notes)
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 p-1 text-xs"
+                    onClick={() => {
+                      setNotes(archive.notes);
+                      // Remove this archive from the archived notes
+                      setArchivedNotes(
+                        archivedNotes.filter((_, i) => i !== index),
+                      );
+                    }}
+                  >
+                    Restore
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
