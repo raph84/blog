@@ -1,10 +1,11 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app';
+import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   connectAuthEmulator,
   getAuth,
   GoogleAuthProvider,
 } from 'firebase/auth';
+import { getPerformance, type FirebasePerformance } from 'firebase/performance';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,16 +23,60 @@ export const firebaseConfig = {
   measurementId: 'G-MX4F1PTVGH',
 };
 
-// Initialize Firebase
-export const getFirebaseApp = () => initializeApp(firebaseConfig);
+// Module-level singleton pattern
+// Private instance variables
+let firebaseAppInstance: FirebaseApp | null = null;
+let firebasePerfInstance: FirebasePerformance | null = null;
 
-// Connect to the Firebase Auth emulator if in development mode
-if (import.meta.env.MODE === 'development') {
-  const auth = getAuth(getFirebaseApp());
-  connectAuthEmulator(auth, 'http://127.0.0.1:9099');
-}
+// Private initialization function
+const initializeFirebaseApp = (): FirebaseApp => {
+  console.log('Initializing new Firebase app instance');
+  const app = initializeApp(firebaseConfig);
 
+  // Connect to the Firebase Auth emulator if in development mode
+  if (import.meta.env.MODE === 'development') {
+    const auth = getAuth(app);
+    connectAuthEmulator(auth, 'http://127.0.0.1:9099');
+  }
+
+  // Initialize Performance monitoring
+  try {
+    firebasePerfInstance = getPerformance(app);
+    console.log('Firebase Performance monitoring initialized');
+  } catch (error) {
+    console.error('Failed to initialize Firebase Performance:', error);
+  }
+
+  return app;
+};
+
+// Public function to get the Firebase app instance
+export const getFirebaseApp = (): FirebaseApp => {
+  if (!firebaseAppInstance) {
+    firebaseAppInstance = initializeFirebaseApp();
+  }
+  return firebaseAppInstance;
+};
+
+// Initialize auth provider
 export const googleAuthProvider = new GoogleAuthProvider();
-//provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
+// Export auth instance
 export const auth = getAuth(getFirebaseApp());
+
+// Public function to get the Firebase Performance instance
+export const getFirebasePerf = (): FirebasePerformance | null => {
+  // Ensure Firebase app is initialized first
+  const app = getFirebaseApp();
+
+  // If Performance failed to initialize, try again
+  if (!firebasePerfInstance) {
+    try {
+      firebasePerfInstance = getPerformance(app);
+    } catch (error) {
+      console.error('Failed to get Firebase Performance instance:', error);
+    }
+  }
+
+  return firebasePerfInstance;
+};
