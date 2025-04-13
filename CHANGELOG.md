@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.0](https://github.com/raph84/blog/compare/v2.6.0...v2.7.0) (2025-04-13)
+
+
+### Features
+
+* add firebase performance ([1bf71f8](https://github.com/raph84/blog/commit/1bf71f84dba89155fbc40187d6c9490fc7b4b5a1))
+* copy scratchnotes to clipboard ([fd41668](https://github.com/raph84/blog/commit/fd41668af33c48f974a72d4a961eb40a8a62a27a))
+
+
+### Bug Fixes
+
+* unit test for scratchnote ([cd610ee](https://github.com/raph84/blog/commit/cd610eebf2dc397090fef970070caafe0de478fd))
+
 ## [2.6.0](https://github.com/raph84/blog/compare/v2.5.2...v2.6.0) (2025-04-10)
 
 
