@@ -184,7 +184,7 @@ function ScratchNote({ className, ...props }: CardProps) {
 
   // Function to compile notes by date and create markdown
   const compileNotesToMarkdown = (): string => {
-    if (notes.length === 0) return '';
+    if (!notes || notes.length === 0) return '';
 
     // Group notes by date
     const groupedNotes: Record<string, ScratchNoteData[]> = {};
@@ -233,7 +233,7 @@ function ScratchNote({ className, ...props }: CardProps) {
 
   // Function to copy notes to clipboard
   const copyNotesToClipboard = () => {
-    if (notes.length === 0) return;
+    if (!notes || notes.length === 0) return;
 
     const markdownContent = compileNotesToMarkdown();
 
@@ -253,7 +253,7 @@ function ScratchNote({ className, ...props }: CardProps) {
 
   // Function to clear notes but keep a backup in local storage
   const clearNotes = () => {
-    if (notes.length === 0) return;
+    if (!notes || notes.length === 0) return;
 
     // First, copy to clipboard
     const markdownContent = compileNotesToMarkdown();
@@ -265,7 +265,10 @@ function ScratchNote({ className, ...props }: CardProps) {
     };
 
     // Add to archives, keeping only the last 3
-    const updatedArchives = [archiveEntry, ...archivedNotes].slice(0, 3);
+    const updatedArchives = [archiveEntry, ...(archivedNotes || [])].slice(
+      0,
+      3,
+    );
     setArchivedNotes(updatedArchives);
 
     // Clear the current notes
@@ -333,7 +336,7 @@ function ScratchNote({ className, ...props }: CardProps) {
                   size="icon"
                   onClick={copyNotesToClipboard}
                   title="Copy all notes to clipboard"
-                  disabled={notes.length === 0}
+                  disabled={!notes || notes.length === 0}
                 >
                   <ClipboardText size={24} />
                 </Button>
@@ -342,20 +345,25 @@ function ScratchNote({ className, ...props }: CardProps) {
                   size="icon"
                   onClick={clearNotes}
                   title="Clear notes (copies to clipboard and archives)"
-                  disabled={notes.length === 0}
+                  disabled={!notes || notes.length === 0}
                   className="text-red-500 hover:bg-red-50 hover:text-red-700"
                 >
                   <Trash size={24} />
                 </Button>
               </div>
-              <Button variant="ghost" size="icon" onClick={addNote}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={addNote}
+                aria-label="Send note"
+              >
                 <PaperPlaneRight size={32} />
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {notes.length > 0 && (
+        {notes && notes.length > 0 && (
           <div className="my-2 mb-2 flex flex-col space-y-1">
             {notes.map((note) => (
               <div
@@ -368,7 +376,7 @@ function ScratchNote({ className, ...props }: CardProps) {
           </div>
         )}
 
-        {archivedNotes.length > 0 && (
+        {archivedNotes && archivedNotes.length > 0 && (
           <div className="mt-4 mb-2">
             <h3 className="mb-2 text-sm font-medium text-gray-500">
               Archived Notes ({archivedNotes.length})
@@ -378,18 +386,20 @@ function ScratchNote({ className, ...props }: CardProps) {
                 <div key={index} className="rounded-sm border bg-gray-50 p-2">
                   <p className="mb-1 text-xs text-gray-500">
                     {new Date(archive.timestamp).toLocaleString()} (
-                    {archive.notes.length} notes)
+                    {archive.notes ? archive.notes.length : 0} notes)
                   </p>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 p-1 text-xs"
                     onClick={() => {
-                      setNotes(archive.notes);
-                      // Remove this archive from the archived notes
-                      setArchivedNotes(
-                        archivedNotes.filter((_, i) => i !== index),
-                      );
+                      if (archive.notes) {
+                        setNotes(archive.notes);
+                        // Remove this archive from the archived notes
+                        setArchivedNotes(
+                          archivedNotes.filter((_, i) => i !== index),
+                        );
+                      }
                     }}
                   >
                     Restore

@@ -99,9 +99,11 @@ describe('ScratchNote', () => {
       fireEvent.change(textarea, { target: { value: 'New test note' } });
     });
 
-    // Click the button
+    // Click the send button - using a test ID to ensure we click the right button
     await act(async () => {
-      fireEvent.click(screen.getByRole('button'));
+      // Find the button by its content or position
+      const sendButton = screen.getByLabelText('Send note');
+      fireEvent.click(sendButton);
       // Allow any promises to resolve
       await new Promise((resolve) => setTimeout(resolve, 100));
     });
@@ -165,7 +167,8 @@ describe('ScratchNote', () => {
 
     // Test with empty input - input is already empty by default
     await act(async () => {
-      fireEvent.click(screen.getByRole('button'));
+      const sendButton = screen.getByLabelText('Send note');
+      fireEvent.click(sendButton);
       // Allow any promises to resolve
       await new Promise((resolve) => setTimeout(resolve, 100));
     });
@@ -180,7 +183,8 @@ describe('ScratchNote', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button'));
+      const sendButton = screen.getByLabelText('Send note');
+      fireEvent.click(sendButton);
       // Allow any promises to resolve
       await new Promise((resolve) => setTimeout(resolve, 100));
     });
@@ -196,11 +200,16 @@ describe('ScratchNote', () => {
       { id: '2', note: 'Second test note', createdAt: new Date() },
     ];
 
-    // Set up the mock to return our existing notes
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      existingNotes,
-      vi.fn(),
-    ]);
+    // Set up the mock to return our existing notes and an empty archive
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNotes') {
+          return [existingNotes, vi.fn()];
+        }
+        // Return empty array for archives
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
 
@@ -221,10 +230,17 @@ describe('ScratchNote', () => {
 
     // Create a spy for the setNotes function
     const mockSetNotes = vi.fn();
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      existingNotes,
-      mockSetNotes,
-    ]);
+
+    // Mock both localStorage hooks
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNotes') {
+          return [existingNotes, mockSetNotes];
+        }
+        // Return empty array for archives
+        return [[], vi.fn()];
+      },
+    );
 
     // Set a consistent value for Date.now()
     const mockDateNow = vi.spyOn(Date, 'now').mockReturnValue(123456789);
@@ -238,7 +254,8 @@ describe('ScratchNote', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button'));
+      const sendButton = screen.getByLabelText('Send note');
+      fireEvent.click(sendButton);
       // Allow any promises to resolve
       await new Promise((resolve) => setTimeout(resolve, 100));
     });
