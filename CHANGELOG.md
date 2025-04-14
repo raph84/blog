@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/raph84/blog/compare/v2.7.0...v2.7.1) (2025-04-14)
+
+
+### Bug Fixes
+
+* notification on pwa app ([8308a5b](https://github.com/raph84/blog/commit/8308a5be5ade1cf5e23f674872512fdfa0b69214))
+
 ## [2.7.0](https://github.com/raph84/blog/compare/v2.6.0...v2.7.0) (2025-04-13)
 
 
