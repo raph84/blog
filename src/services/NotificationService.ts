@@ -157,24 +157,56 @@ export class NotificationService {
     }
 
     try {
-      const notification = new Notification(title, {
-        body,
-        icon,
-        data,
-      });
+      // Detect mobile & PWA mode
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+      const isMobile =
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent,
+        );
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-      notification.onclick = () => {
-        console.log('Notification clicked', data);
-        window.focus();
-        notification.close();
+      // Log platform info for debugging
+      console.log('Platform detection:', { isPWA, isMobile, isIOS });
 
-        // Handle custom click actions based on the data
-        if (data.url) {
-          window.location.href = data.url;
-        }
-      };
+      // iOS in PWA mode doesn't support notifications at all
+      if (isIOS && isPWA) {
+        console.warn('iOS PWA mode does not support Web Notifications API');
+        return false;
+      }
 
-      return true;
+      // For Android PWA, use service worker if available
+      if (isPWA && isMobile && !isIOS && 'serviceWorker' in navigator) {
+        console.log('Using service worker for notification in Android PWA');
+        navigator.serviceWorker.ready.then((registration) => {
+          registration.showNotification(title, {
+            body,
+            icon,
+            data,
+            requireInteraction: true,
+            actions: data.url ? [{ action: 'open', title: 'Open' }] : [],
+          });
+        });
+        return true;
+      } else {
+        // Standard browser notification for desktop or non-PWA mobile
+        console.log('Using standard browser notification API');
+        const notification = new Notification(title, {
+          body,
+          icon,
+          data,
+        });
+
+        notification.onclick = () => {
+          console.log('Notification clicked', data);
+          window.focus();
+          notification.close();
+
+          if (data.url) {
+            window.location.href = data.url;
+          }
+        };
+        return true;
+      }
     } catch (error) {
       console.error('Error showing notification:', error);
       return false;

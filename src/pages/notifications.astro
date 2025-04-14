@@ -28,7 +28,8 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
           <p class="mb-2">
             Current permission status: <span
               id="permission-status"
-              class="font-medium">Checking...</span>
+              class="font-medium">Checking...</span
+            >
           </p>
 
           <button
@@ -65,6 +66,32 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
             This token uniquely identifies your device for receiving push
             notifications.
           </p>
+        </div>
+      </div>
+
+      <div class="mt-8 mb-4 rounded border bg-white p-4 shadow">
+        <h2 class="mb-2 text-xl font-semibold">Notification Diagnostics</h2>
+
+        <div class="mb-4 rounded bg-blue-50 p-3 text-sm">
+          <p id="platform-info">Loading platform information...</p>
+        </div>
+
+        <div class="grid gap-2 text-sm">
+          <div><strong>User Agent:</strong> <span id="user-agent"></span></div>
+          <div><strong>PWA Mode:</strong> <span id="pwa-mode"></span></div>
+          <div><strong>Platform:</strong> <span id="platform"></span></div>
+          <div>
+            <strong>Service Worker:</strong>
+            <span id="sw-support"></span>
+          </div>
+          <div>
+            <strong>Notification API:</strong>
+            <span id="notification-api"></span>
+          </div>
+          <div>
+            <strong>Permission Status:</strong>
+            <span id="permission-status-diag"></span>
+          </div>
         </div>
       </div>
 
@@ -139,8 +166,49 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
         });
       }
 
+      // Fill in the diagnostic info
+      const updateDiagnostics = () => {
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        const isMobile =
+          /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent,
+          );
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        document.getElementById('pwa-mode').textContent = isPWA ? 'Yes' : 'No';
+        document.getElementById('platform').textContent = navigator.platform;
+        document.getElementById('sw-support').textContent =
+          'serviceWorker' in navigator ? 'Supported' : 'Not Supported';
+        document.getElementById('notification-api').textContent =
+          'Notification' in window ? 'Supported' : 'Not Supported';
+        document.getElementById('permission-status-diag').textContent =
+          Notification.permission;
+
+        // Set platform info message
+        const platformInfoEl = document.getElementById('platform-info');
+        if (platformInfoEl) {
+          if (isPWA && isIOS) {
+            platformInfoEl.textContent =
+              '⚠️ iOS does not support Web Notifications API in PWA mode. Push notifications require a native app wrapper.';
+          } else if (isPWA && isMobile) {
+            platformInfoEl.textContent =
+              'Android PWA detected. Notifications should work through service worker.';
+          } else if (isMobile) {
+            platformInfoEl.textContent =
+              'Mobile browser detected. Notifications may work but with limitations.';
+          } else {
+            platformInfoEl.textContent =
+              'Desktop browser detected. Notifications should work normally.';
+          }
+        }
+      };
+
       // Initialize on page load
       updatePermissionStatus();
+
+      // Run diagnostics when the page loads
+      window.addEventListener('load', updateDiagnostics);
     </script>
   </body>
 </html>

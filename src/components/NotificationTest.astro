@@ -75,10 +75,30 @@
   ) as HTMLInputElement;
   const statusDiv = document.getElementById('notification-status');
 
-  // Update status display
+  // Platform detection
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+  const isMobile =
+    /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // Update status display with platform info
   const updateStatus = (message: string, isError = false) => {
     if (statusDiv) {
-      statusDiv.textContent = message;
+      // Add platform info
+      let platformInfo = '';
+      if (isPWA && isIOS) {
+        platformInfo = ' [iOS PWA - Notifications not supported]';
+      } else if (isPWA && isMobile) {
+        platformInfo = ' [Android PWA]';
+      } else if (isMobile) {
+        platformInfo = ' [Mobile Browser]';
+      } else {
+        platformInfo = ' [Desktop]';
+      }
+
+      statusDiv.textContent = message + platformInfo;
       statusDiv.className = `text-sm p-2 rounded ${isError ? 'bg-red-100' : 'bg-gray-100'}`;
     }
   };
@@ -86,7 +106,12 @@
   // Initialize
   const initialize = () => {
     const permissionStatus = notificationService.getPermissionStatus();
-    updateStatus(`Notification permission: ${permissionStatus}`);
+
+    if (isPWA && isIOS) {
+      updateStatus('iOS does not support notifications in PWA mode', true);
+    } else {
+      updateStatus(`Notification permission: ${permissionStatus}`);
+    }
   };
 
   // Send test notification
@@ -96,6 +121,12 @@
     const delay = parseInt(delayInput?.value || '0', 10) * 1000;
 
     const permissionStatus = notificationService.getPermissionStatus();
+
+    // Early return for iOS PWA
+    if (isPWA && isIOS) {
+      updateStatus('Notifications are not supported in iOS PWA mode', true);
+      return;
+    }
 
     if (permissionStatus !== 'granted') {
       updateStatus(

@@ -41,10 +41,14 @@ precacheAndRoute(self.__WB_MANIFEST, {
 
 // Handle push events from Firebase Cloud Messaging
 self.addEventListener('push', (event) => {
+  console.log('Push event received in service worker:', event);
+
   let payload: PushNotificationPayload = {};
   try {
     payload = event.data?.json() || {};
-  } catch (_e) {
+    console.log('Push payload parsed:', payload);
+  } catch (e) {
+    console.error('Error parsing push payload:', e);
     payload = {
       notification: {
         title: 'New Notification',
@@ -72,12 +76,19 @@ self.addEventListener('push', (event) => {
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked in service worker:', event);
+
   event.notification.close();
 
   // Check if there's a specific URL to open
   const notificationData = event.notification.data as
     | { url?: string }
     | undefined;
+
+  // Check if there was a specific action clicked (for Android)
+  const clickedAction = event.action;
+  console.log('Notification action clicked:', clickedAction);
+
   const url = notificationData?.url || '/';
 
   // Handle notification click - focus or open a window
@@ -85,8 +96,12 @@ self.addEventListener('notificationclick', (event) => {
     self.clients.matchAll({ type: 'window' }).then((clientList) => {
       // If we have a client, focus it
       for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
+        if ('focus' in client) {
+          client.focus();
+          if ('navigate' in client) {
+            client.navigate(url);
+            return;
+          }
         }
       }
 
