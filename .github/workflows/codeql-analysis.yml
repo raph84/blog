@@ -3,12 +3,14 @@ name: 'CodeQL'
 on:
   push:
     branches: [master]
-    paths: 
+    paths:
       - 'src/**'
       - 'static/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
+  pull_request_review:
+    types: [submitted] # Updated from [edited, dismissed] to [submitted]
   schedule:
     - cron: '0 18 * * 6'
 
