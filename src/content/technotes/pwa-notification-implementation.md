@@ -3,6 +3,9 @@ title: PWA Notifications Implementation Guide
 description: Implementation of PWA notifications using Firebase Cloud Messaging and local browser notifications
 pubDate: '2025-04-10'
 author: Raph
+tags: ['Firebase', 'PWA', 'Notifications', 'Service Worker']
+category: 'Frontend'
+type: 'guide'
 ---
 
 # PWA Notifications Implementation Guide

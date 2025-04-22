@@ -6,9 +6,18 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 
+// Fetch posts from the technotes collection, sorted by date
 const posts = (await getCollection('technotes')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+// Extract all unique tags
+const allTags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+
+// Extract all unique categories
+const allCategories = [
+  ...new Set(posts.map((post) => post.data.category || 'Uncategorized')),
+];
 ---
 
 <!doctype html>
@@ -16,71 +25,235 @@ const posts = (await getCollection('technotes')).sort(
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
     <style>
+      /* Custom styling for the tech notes page */
       main {
-        width: 960px;
+        max-width: 960px;
       }
-      ul {
+
+      .tech-notes-container {
+        margin-top: 2rem;
+      }
+
+      .tech-notes-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .tech-notes-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .tech-notes-description {
+        color: #666;
+        font-size: 1rem;
+      }
+
+      /* Filter controls styling */
+      .filter-controls {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+      }
+
+      .filter-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 0.75rem;
+      }
+
+      .filter-group {
+        margin-bottom: 1rem;
+      }
+
+      .filter-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 2rem;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      ul li {
-        width: calc(50% - 1rem);
-      }
-      ul li * {
-        text-decoration: none;
-        transition: 0.2s ease;
-      }
-      ul li:first-child {
-        width: 100%;
+        gap: 0.5rem;
         margin-bottom: 1rem;
-        text-align: center;
       }
-      ul li:first-child img {
-        width: 100%;
+
+      .filter-tag {
+        background-color: #fff;
+        color: #555;
+        border: 1px solid #ddd;
+        padding: 0.25rem 0.75rem;
+        border-radius: 16px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          color 0.2s,
+          border-color 0.2s;
       }
-      ul li:first-child .title {
-        font-size: 2.369rem;
+
+      .filter-tag:hover {
+        border-color: #bbb;
+        background-color: #f0f0f0;
       }
-      ul li img {
+
+      .filter-tag.active {
+        background-color: #333;
+        color: white;
+        border-color: #333;
+      }
+
+      .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
         margin-bottom: 0.5rem;
-        border-radius: 12px;
       }
-      ul li a {
-        display: block;
+
+      .filter-label {
+        font-size: 0.8125rem;
+        color: #666;
+        min-width: 80px;
       }
-      .title {
+
+      .filter-select {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        font-size: 0.875rem;
+        background-color: white;
+        color: #333;
+      }
+
+      .clear-filters {
+        margin-top: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        background-color: transparent;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        color: #666;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          color 0.2s;
+      }
+
+      .clear-filters:hover {
+        background-color: #f0f0f0;
+        color: #333;
+      }
+
+      /* Results count */
+      .results-count {
+        font-size: 0.875rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Tech notes grid */
+      .tech-notes-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2rem;
+      }
+
+      .tech-note-item {
+        border: 1px solid #eaeaea;
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition:
+          border-color 0.3s ease,
+          transform 0.2s ease;
+        background: white;
+      }
+
+      .tech-note-item:hover {
+        border-color: #ccc;
+        transform: translateY(-2px);
+      }
+
+      .tech-note-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        color: #666;
+      }
+
+      .tech-note-title {
+        font-size: 1.5rem;
+        font-weight: 600;
         margin: 0;
-        color: rgb(var(--black));
-        line-height: 1;
+        margin-bottom: 0.75rem;
       }
-      .date {
-        margin: 0;
-        color: rgb(var(--gray));
+
+      .tech-note-title a {
+        color: #333;
+        text-decoration: none;
       }
-      ul li a:hover h4,
-      ul li a:hover .date {
-        color: rgb(var(--accent));
+
+      .tech-note-title a:hover {
+        color: #555;
       }
-      ul a:hover img {
-        box-shadow: var(--box-shadow);
+
+      .tech-note-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.5;
       }
-      @media (max-width: 720px) {
-        ul {
-          gap: 0.5em;
+
+      .tech-note-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .tech-note-tag {
+        background-color: #f5f5f5;
+        color: #555;
+        padding: 0.25rem 0.75rem;
+        border-radius: 16px;
+        font-size: 0.75rem;
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+      }
+
+      .empty-state-title {
+        font-size: 1.25rem;
+        color: #555;
+        margin-bottom: 0.5rem;
+      }
+
+      .empty-state-description {
+        color: #777;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .tech-notes-grid {
+          grid-template-columns: 1fr;
         }
-        ul li {
+
+        .filter-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        .filter-label {
+          min-width: auto;
+        }
+
+        .filter-select {
           width: 100%;
-          text-align: center;
-        }
-        ul li:first-child {
-          margin-bottom: 0;
-        }
-        ul li:first-child .title {
-          font-size: 1.563em;
         }
       }
     </style>
@@ -88,29 +261,213 @@ const posts = (await getCollection('technotes')).sort(
   <body>
     <Header />
     <main>
-      <section>
-        <ul>
+      <div class="tech-notes-container">
+        <div class="tech-notes-header">
+          <h1 class="tech-notes-title">Tech Notes</h1>
+          <p class="tech-notes-description">
+            Development guides, tutorials, and technical documentation
+          </p>
+        </div>
+
+        <div class="filter-controls">
+          <h2 class="filter-title">Filter Notes</h2>
+
+          <div class="filter-group">
+            <div class="filter-row">
+              <span class="filter-label" id="category-label">Category:</span>
+              <select
+                id="category-filter"
+                class="filter-select"
+                aria-labelledby="category-label"
+              >
+                <option value="">All Categories</option>
+                {
+                  allCategories.map((category) => (
+                    <option value={category}>{category}</option>
+                  ))
+                }
+              </select>
+            </div>
+
+            {
+              allTags.length > 0 && (
+                <div class="filter-row">
+                  <span class="filter-label" id="tags-label">
+                    Popular Tags:
+                  </span>
+                  <div class="filter-tags" aria-labelledby="tags-label">
+                    {allTags.slice(0, 8).map((tag) => (
+                      <button class="filter-tag" data-tag={tag}>
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            <button id="clear-filters" class="clear-filters"
+              >Clear Filters</button
+            >
+          </div>
+        </div>
+
+        <div id="results-count" class="results-count">
+          Showing {posts.length} notes
+        </div>
+
+        <div id="tech-notes-grid" class="tech-notes-grid">
           {
             posts.map((post) => (
-              <li>
-                <a href={`/technotes/${post.id}/`}>
-                  <img
-                    width={720}
-                    height={360}
-                    src={post.data.heroImage}
-                    alt=""
-                  />
-                  <h4 class="title">{post.data.title}</h4>
-                  <p class="date">
+              <article
+                class="tech-note-item"
+                data-category={post.data.category || 'Uncategorized'}
+                data-tags={JSON.stringify(post.data.tags || [])}
+              >
+                <div class="tech-note-meta">
+                  <span>
                     <FormattedDate date={post.data.pubDate} />
-                  </p>
-                </a>
-              </li>
+                  </span>
+                  {post.data.readingTime && (
+                    <span>• {post.data.readingTime} read</span>
+                  )}
+                </div>
+                <h2 class="tech-note-title">
+                  <a href={`/technotes/${post.id}/`}>{post.data.title}</a>
+                </h2>
+                <p class="tech-note-description">{post.data.description}</p>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="tech-note-tags">
+                    {post.data.tags.map((tag) => (
+                      <span class="tech-note-tag" data-tag={tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </article>
             ))
           }
-        </ul>
-      </section>
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+          <h3 class="empty-state-title">No matching notes found</h3>
+          <p class="empty-state-description">
+            Try adjusting your filters or clearing them to see all notes.
+          </p>
+          <button id="reset-filters" class="clear-filters">Reset Filters</button
+          >
+        </div>
+      </div>
     </main>
     <Footer />
+
+    <script>
+      // Client-side filtering functionality
+      document.addEventListener('DOMContentLoaded', () => {
+        const categoryFilter = document.getElementById('category-filter');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const resultsCount = document.getElementById('results-count');
+        const techNotesGrid = document.getElementById('tech-notes-grid');
+        const emptyState = document.getElementById('empty-state');
+        const tagButtons = document.querySelectorAll('.filter-tag');
+        const techNoteItems = document.querySelectorAll('.tech-note-item');
+
+        let activeTag = null;
+
+        // Function to apply filters
+        function applyFilters() {
+          const selectedCategory = categoryFilter.value;
+          let visibleCount = 0;
+
+          techNoteItems.forEach((item) => {
+            const itemCategory = item.getAttribute('data-category');
+            const itemTags = JSON.parse(item.getAttribute('data-tags'));
+
+            const categoryMatch =
+              !selectedCategory || itemCategory === selectedCategory;
+            const tagMatch = !activeTag || itemTags.includes(activeTag);
+
+            if (categoryMatch && tagMatch) {
+              item.style.display = 'block';
+              visibleCount++;
+            } else {
+              item.style.display = 'none';
+            }
+          });
+
+          // Update results count
+          resultsCount.textContent = `Showing ${visibleCount} note${visibleCount !== 1 ? 's' : ''}`;
+
+          // Show/hide empty state
+          if (visibleCount === 0) {
+            techNotesGrid.style.display = 'none';
+            emptyState.style.display = 'block';
+          } else {
+            techNotesGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+          }
+        }
+
+        // Set up event listeners
+        categoryFilter.addEventListener('change', applyFilters);
+
+        // Tag button click handler
+        tagButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            const tag = button.getAttribute('data-tag');
+
+            // If this tag is already active, deactivate it
+            if (activeTag === tag) {
+              activeTag = null;
+              tagButtons.forEach((btn) => btn.classList.remove('active'));
+            } else {
+              // Set this tag as active
+              activeTag = tag;
+              tagButtons.forEach((btn) => {
+                if (btn.getAttribute('data-tag') === tag) {
+                  btn.classList.add('active');
+                } else {
+                  btn.classList.remove('active');
+                }
+              });
+            }
+
+            applyFilters();
+          });
+        });
+
+        // Clear filters button
+        clearFiltersBtn.addEventListener('click', () => {
+          categoryFilter.value = '';
+          activeTag = null;
+          tagButtons.forEach((btn) => btn.classList.remove('active'));
+          applyFilters();
+        });
+
+        // Reset filters button (in empty state)
+        resetFiltersBtn.addEventListener('click', () => {
+          categoryFilter.value = '';
+          activeTag = null;
+          tagButtons.forEach((btn) => btn.classList.remove('active'));
+          applyFilters();
+        });
+
+        // Make tags in articles clickable
+        document.querySelectorAll('.tech-note-tag').forEach((tag) => {
+          tag.addEventListener('click', () => {
+            const tagValue = tag.getAttribute('data-tag');
+
+            // Find and activate the corresponding filter tag
+            tagButtons.forEach((btn) => {
+              if (btn.getAttribute('data-tag') === tagValue) {
+                btn.click(); // Trigger the click event on the filter tag
+              }
+            });
+          });
+        });
+      });
+    </script>
   </body>
 </html>

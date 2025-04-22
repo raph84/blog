@@ -3,6 +3,9 @@ title: Vitest Workspace Configuration
 description: Implementation of Vitest workspace to test both Astro and React components with a single configuration
 pubDate: '2025-04-07'
 author: Raph
+tags: ['vite', 'vitest', 'Astro', 'React', 'Testing']
+category: 'Frontend'
+type: 'guide'
 ---
 
 # Vitest Workspace Configuration

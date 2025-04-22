@@ -3,6 +3,9 @@ title: shadcn/ui install on Astro
 description: shadcn/ui install on Astro
 pubDate: '2025-04-05'
 author: Raph
+tags: ['shadcn/ui']
+category: 'Frontend'
+type: 'guide'
 ---
 
 # Shadcn/ui
