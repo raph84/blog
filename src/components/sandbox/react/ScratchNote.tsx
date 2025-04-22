@@ -107,34 +107,6 @@ function ScratchNote({ className, ...props }: CardProps) {
     }
   };
 
-  // Improved function to handle Shift+Enter
-  const handleShiftEnter = async (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-  ) => {
-    e.preventDefault();
-    const textarea = e.currentTarget;
-    const selectionStart = textarea.selectionStart;
-    const selectionEnd = textarea.selectionEnd;
-
-    // Directly insert a newline character at the cursor position
-    const newText =
-      inputText.substring(0, selectionStart) +
-      '\n' +
-      inputText.substring(selectionEnd);
-
-    // Set the input text directly without formatting for newline operations
-    setInputText(newText);
-
-    // Use setTimeout to focus, set cursor position, and scroll to cursor after state update
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(selectionStart + 1, selectionStart + 1);
-
-      // Ensure the cursor is visible by scrolling to it
-      ensureCursorVisible(textarea);
-    }, 0);
-  };
-
   // Helper function to ensure the cursor is visible by scrolling the textarea
   const ensureCursorVisible = (textarea: HTMLTextAreaElement) => {
     // Skip in test environment to avoid JSDOM issues
@@ -301,19 +273,11 @@ function ScratchNote({ className, ...props }: CardProps) {
               className="h-[150px] p-1 font-mono text-xs"
               onChange={handleInputChange}
               value={inputText}
-              onKeyDown={async (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault(); // Prevent default to avoid newline
-                  addNote();
-                } else if (e.key === 'Enter' && e.shiftKey) {
-                  // Use the improved Shift+Enter handler
-                  handleShiftEnter(e);
-                } else {
-                  // For any other key press, ensure cursor is visible after a short delay
-                  // This handles normal typing when the text is long
-                  if (!isTestEnvironment()) {
-                    setTimeout(() => ensureCursorVisible(e.currentTarget), 0);
-                  }
+              onKeyDown={(e) => {
+                // For any key press, ensure cursor is visible after a short delay
+                // This handles normal typing when the text is long
+                if (!isTestEnvironment()) {
+                  setTimeout(() => ensureCursorVisible(e.currentTarget), 0);
                 }
               }}
               // Also handle input events for paste operations
