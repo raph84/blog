@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.8.0](https://github.com/raph84/blog/compare/v2.7.1...v2.8.0) (2025-04-22)
+
+
+### Features
+
+* **scratchNote:** return to default behavior for "return" key press in textarea ([883edd9](https://github.com/raph84/blog/commit/883edd975e900a44a574922f20714098e2759464))
+* technotes redesign ([9c8e293](https://github.com/raph84/blog/commit/9c8e2936bcf9418eaa7c0e2134a5eea9f04e45f2))
+
 ## [2.7.1](https://github.com/raph84/blog/compare/v2.7.0...v2.7.1) (2025-04-14)
 
 
