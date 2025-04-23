@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.0](https://github.com/raph84/blog/compare/v2.8.0...v2.9.0) (2025-04-23)
+
+
+### Features
+
+* google tag manager ([9a055b6](https://github.com/raph84/blog/commit/9a055b62de60ac1247bdfa4a4ebdf8012559c968))
+* scratch note schema version ([69c098b](https://github.com/raph84/blog/commit/69c098b8744f870bf60139e212868bada30e462d))
+
 ## [2.8.0](https://github.com/raph84/blog/compare/v2.7.1...v2.8.0) (2025-04-22)
 
 
