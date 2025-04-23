@@ -59,7 +59,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^22.14.0",
+    "@types/node": "^22.14.1",
     "@typescript-eslint/parser": "^8.29.1",
     "@vite-pwa/astro": "^0.5.1",
     "@vitejs/plugin-react": "^4.3.4",
