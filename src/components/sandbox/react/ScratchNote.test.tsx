@@ -8,6 +8,13 @@ import type { ScratchNoteData } from '@/schemas/scratchNote';
 // Import React explicitly
 import * as React from 'react';
 
+// Mock package.json for version testing
+vi.mock('../../../../package.json', () => ({
+  default: {
+    version: '2.8.0',
+  },
+}));
+
 // Create a better mock solution that doesn't cause errors
 // Mock the specific modules that are used in the component
 vi.mock('unified', async () => {
@@ -116,6 +123,9 @@ describe('ScratchNote', () => {
     expect(firstCallArg[0]).toEqual(
       expect.objectContaining({
         id: expect.any(String),
+        meta: expect.objectContaining({
+          version: '2.8.0', // Check for version from the mocked package.json
+        }),
       }),
     );
 
@@ -196,8 +206,18 @@ describe('ScratchNote', () => {
   it('renders existing notes from local storage', () => {
     // Mock existing notes
     const existingNotes: ScratchNoteData[] = [
-      { id: '1', note: 'First test note', createdAt: new Date() },
-      { id: '2', note: 'Second test note', createdAt: new Date() },
+      {
+        id: '1',
+        note: 'First test note',
+        createdAt: new Date(),
+        meta: { version: '2.7.0' },
+      },
+      {
+        id: '2',
+        note: 'Second test note',
+        createdAt: new Date(),
+        // No meta to test backward compatibility
+      },
     ];
 
     // Set up the mock to return our existing notes and an empty archive
@@ -225,6 +245,7 @@ describe('ScratchNote', () => {
         id: '1',
         note: 'Existing note',
         createdAt: new Date('2023-04-07T10:00:00Z'),
+        meta: { version: '2.7.0' },
       },
     ];
 
@@ -268,6 +289,9 @@ describe('ScratchNote', () => {
     expect(firstCallArg).toBeInstanceOf(Array);
     expect(firstCallArg.length).toBe(2);
     expect(firstCallArg[1]).toEqual(existingNotes[0]);
+
+    // Verify the new note has meta with version
+    expect(firstCallArg[0].meta).toEqual({ version: '2.8.0' });
 
     // Clean up the spy
     mockDateNow.mockRestore();

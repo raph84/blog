@@ -12,7 +12,11 @@ import { PaperPlaneRight, ClipboardText, Trash } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from './UseLocalStorage';
 import type { ScratchNoteData } from '@/schemas/scratchNote';
+import type { Meta } from '@/schemas/meta';
 import { useState, useMemo } from 'react';
+
+// Import package.json for version information
+import pkg from '../../../../package.json';
 
 type CardProps = React.ComponentProps<typeof Card>;
 
@@ -96,11 +100,19 @@ function ScratchNote({ className, ...props }: CardProps) {
     if (inputText.trim() !== '') {
       const dt = new Date();
       const text = await formatMarkdownWithRemark(inputText);
+
+      // Create meta information with current package version
+      const meta: Meta = {
+        version: pkg.version,
+      };
+
       const scratch = {
         id: Date.now().toString(),
         note: text,
         createdAt: dt,
+        meta, // Add meta information to the note
       } as ScratchNoteData;
+
       setNotes([scratch, ...notes]);
       // Reset the text field
       setInputText('');
