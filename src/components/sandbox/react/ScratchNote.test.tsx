@@ -4,9 +4,23 @@ import userEvent from '@testing-library/user-event';
 import ScratchNote from './ScratchNote';
 import * as UseLocalStorageModule from './UseLocalStorage';
 import type { ScratchNoteData } from '@/schemas/scratchNote';
+import type { ScratchNoteThreadsConfig } from '@/schemas/scratchNoteThread';
 
 // Import React explicitly
 import * as React from 'react';
+
+// Mock ResizeObserver that doesn't exist in test environment
+class ResizeObserverMock {
+  observe() {
+    /* do nothing */
+  }
+  unobserve() {
+    /* do nothing */
+  }
+  disconnect() {
+    /* do nothing */
+  }
+}
 
 // Mock package.json for version testing
 vi.mock('../../../../package.json', () => ({
@@ -15,14 +29,13 @@ vi.mock('../../../../package.json', () => ({
   },
 }));
 
-// Create a better mock solution that doesn't cause errors
-// Mock the specific modules that are used in the component
+// Mock the unified/remark modules
 vi.mock('unified', async () => {
   return {
     unified: () => ({
       use: () => ({
         use: () => ({
-          process: () =>
+          process: (text) =>
             Promise.resolve({
               toString: () => 'Mocked formatted content',
             }),
@@ -44,38 +57,86 @@ vi.mock('remark-stringify', async () => {
   };
 });
 
-// Mock the useLocalStorage hook
-vi.mock('./UseLocalStorage', async () => {
-  const actual = await vi.importActual('./UseLocalStorage');
-  return {
-    ...actual,
-    useLocalStorage: vi.fn(),
-  };
-});
+// Mock the ScratchNoteThreadSelector component
+vi.mock('./ScratchNoteThreadSelector', () => ({
+  default: ({ onSelectThread, onCreateThread }) => (
+    <div data-testid="mock-thread-selector">
+      <button
+        data-testid="mock-select-default"
+        onClick={() => onSelectThread('default')}
+      >
+        Default
+      </button>
+      <button
+        data-testid="mock-create-thread"
+        onClick={() => onCreateThread('New Thread')}
+      >
+        New Thread
+      </button>
+    </div>
+  ),
+}));
 
 describe('ScratchNote', () => {
+  // Default thread config that should be returned by useLocalStorage
+  const defaultThreadsConfig: ScratchNoteThreadsConfig = {
+    threads: [
+      { id: 'default', name: 'Default', createdAt: new Date(), order: 0 },
+    ],
+    activeThreadId: 'default',
+    version: '2.8.0',
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Setup mock for ResizeObserver
+    global.ResizeObserver = ResizeObserverMock;
+
+    // Mock clipboard API
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+      },
+      configurable: true,
+    });
+
+    // Mock alert
+    global.alert = vi.fn();
+
+    // Default mock for useLocalStorage that returns empty arrays
+    // and the default threads config
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        // Return empty array by default for other keys
+        return [[], vi.fn()];
+      },
+    );
+  });
+
+  afterEach(() => {
+    // Clean up mocks
+    delete global.ResizeObserver;
+    vi.resetAllMocks();
   });
 
   it('renders the ScratchNote component', () => {
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      vi.fn(),
-    ]);
-
     render(<ScratchNote />);
-    expect(screen.getByText('Note')).toBeInTheDocument();
-    expect(screen.getByText('Take a new note')).toBeInTheDocument();
+
+    // Check for thread selector
+    expect(screen.getByTestId('mock-thread-selector')).toBeInTheDocument();
+
+    // Check for textarea
     expect(screen.getByRole('textbox')).toBeInTheDocument();
+
+    // Check for card description
+    expect(screen.getByText('Take a new note')).toBeInTheDocument();
   });
 
   it('allows entering text in the textarea', async () => {
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      vi.fn(),
-    ]);
-
     render(<ScratchNote />);
 
     const textarea = screen.getByRole('textbox');
@@ -93,10 +154,17 @@ describe('ScratchNote', () => {
 
     // Create a spy for the setNotes function
     const mockSetNotes = vi.fn();
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      mockSetNotes,
-    ]);
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        if (key === 'scratchNotes_thread_default') {
+          return [[], mockSetNotes];
+        }
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
 
@@ -106,9 +174,8 @@ describe('ScratchNote', () => {
       fireEvent.change(textarea, { target: { value: 'New test note' } });
     });
 
-    // Click the send button - using a test ID to ensure we click the right button
+    // Click the send button - using aria-label to find it
     await act(async () => {
-      // Find the button by its content or position
       const sendButton = screen.getByLabelText('Send note');
       fireEvent.click(sendButton);
       // Allow any promises to resolve
@@ -117,6 +184,7 @@ describe('ScratchNote', () => {
 
     // Verify the mock was called with the correct data
     expect(mockSetNotes).toHaveBeenCalled();
+
     // Check the first argument of the first call
     const firstCallArg = mockSetNotes.mock.calls[0][0];
     expect(firstCallArg).toBeInstanceOf(Array);
@@ -137,10 +205,17 @@ describe('ScratchNote', () => {
     // Since we can't mock useState in React 19, we'll test the functionality differently
     // by observing what happens when Shift+Enter is pressed
     const mockSetNotes = vi.fn();
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      mockSetNotes,
-    ]);
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        if (key === 'scratchNotes_thread_default') {
+          return [[], mockSetNotes];
+        }
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
     const textarea = screen.getByRole('textbox');
@@ -168,10 +243,17 @@ describe('ScratchNote', () => {
   it('does not add empty notes', async () => {
     // Create a spy for the setNotes function
     const mockSetNotes = vi.fn();
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      mockSetNotes,
-    ]);
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        if (key === 'scratchNotes_thread_default') {
+          return [[], mockSetNotes];
+        }
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
 
@@ -211,19 +293,24 @@ describe('ScratchNote', () => {
         note: 'First test note',
         createdAt: new Date(),
         meta: { version: '2.7.0' },
+        threadId: 'default',
       },
       {
         id: '2',
         note: 'Second test note',
         createdAt: new Date(),
+        threadId: 'default',
         // No meta to test backward compatibility
       },
     ];
 
-    // Set up the mock to return our existing notes and an empty archive
+    // Set up the mock to return our existing notes
     vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
       (key) => {
-        if (key === 'scratchNotes') {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        if (key === 'scratchNotes_thread_default') {
           return [existingNotes, vi.fn()];
         }
         // Return empty array for archives
@@ -246,6 +333,7 @@ describe('ScratchNote', () => {
         note: 'Existing note',
         createdAt: new Date('2023-04-07T10:00:00Z'),
         meta: { version: '2.7.0' },
+        threadId: 'default',
       },
     ];
 
@@ -255,7 +343,10 @@ describe('ScratchNote', () => {
     // Mock both localStorage hooks
     vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
       (key) => {
-        if (key === 'scratchNotes') {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        if (key === 'scratchNotes_thread_default') {
           return [existingNotes, mockSetNotes];
         }
         // Return empty array for archives
@@ -298,10 +389,14 @@ describe('ScratchNote', () => {
   });
 
   it('handles other key presses in the textarea', async () => {
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      vi.fn(),
-    ]);
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
 
@@ -323,10 +418,14 @@ describe('ScratchNote', () => {
   });
 
   it('handles paste operations in the textarea', async () => {
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      vi.fn(),
-    ]);
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
 
@@ -346,10 +445,14 @@ describe('ScratchNote', () => {
 
   it('correctly identifies test environment', () => {
     // Access the isTestEnvironment function indirectly by rendering the component
-    vi.mocked(UseLocalStorageModule.useLocalStorage).mockReturnValue([
-      [],
-      vi.fn(),
-    ]);
+    vi.mocked(UseLocalStorageModule.useLocalStorage).mockImplementation(
+      (key) => {
+        if (key === 'scratchNoteThreadsConfig') {
+          return [defaultThreadsConfig, vi.fn()];
+        }
+        return [[], vi.fn()];
+      },
+    );
 
     render(<ScratchNote />);
 

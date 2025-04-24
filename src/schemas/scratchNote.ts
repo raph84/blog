@@ -6,4 +6,5 @@ export interface ScratchNoteData {
   note: string;
   createdAt: Date;
   meta?: Meta; // Optional meta field for version tracking
+  threadId?: string; // Optional thread ID for organizing notes
 }
