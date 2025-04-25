@@ -36,7 +36,9 @@ const initializeFirebaseApp = (): FirebaseApp => {
   // Connect to the Firebase Auth emulator if in development mode
   if (import.meta.env.MODE === 'development') {
     const auth = getAuth(app);
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099');
+    const authHost =
+      import.meta.env.PUBLIC_EMULATOR_HOST || 'http://127.0.0.1:9099';
+    connectAuthEmulator(auth, authHost);
   }
 
   // Initialize Performance monitoring
