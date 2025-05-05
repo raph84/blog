@@ -78,7 +78,7 @@
     "tsc": "^2.0.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.1",
-    "vite": "^6.2.6",
+    "vite": "^6.3.4",
     "vite-plugin-pwa": "^0.21.2",
     "vitest": "^3.1.1",
     "workbox-core": "^7.3.0",
