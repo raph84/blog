@@ -1,17 +1,16 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [],
   test: {
-    name: 'react',
-    include: ['src/**/react/*.test.ts', 'src/**/react/*.test.tsx'],
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
+    name: 'typescript', // Name of this test configuration
     globals: true,
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['src/**/*.test.ts'],
+    exclude: ['src/**/react/*.test.ts', 'src/**/*.astro.test.ts'],
     coverage: {
-      include: ['src/**/react/*.tsx'],
+      include: ['src/**/*.ts'],
       provider: 'v8',
     },
     mockReset: true, // Reset mocks between each test

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ScratchNoteThreadSelector from './ScratchNoteThreadSelector';
 import type { ScratchNoteThread } from '@/schemas/scratchNoteThread';
@@ -125,9 +125,7 @@ describe('ScratchNoteThreadSelector', () => {
     const workButton = threadButtons.find((btn) => btn.textContent === 'Work');
 
     // Click on the Work thread
-    await act(async () => {
-      if (workButton) await userEvent.click(workButton);
-    });
+    if (workButton) await userEvent.click(workButton);
 
     // onSelectThread should be called with the Work thread ID
     expect(mockSelectThread).toHaveBeenCalledWith('thread_work');
@@ -154,9 +152,7 @@ describe('ScratchNoteThreadSelector', () => {
     );
 
     // Click on the already active Default thread
-    await act(async () => {
-      if (defaultButton) await userEvent.click(defaultButton);
-    });
+    if (defaultButton) await userEvent.click(defaultButton);
 
     // onSelectThread should still be called, as the component lets the parent handle this logic
     expect(mockSelectThread).toHaveBeenCalledWith('default');
@@ -174,9 +170,7 @@ describe('ScratchNoteThreadSelector', () => {
 
     // Click on the New Thread button (this is our mocked component)
     const newThreadButton = screen.getByTestId('mock-create-thread-dialog');
-    await act(async () => {
-      await userEvent.click(newThreadButton);
-    });
+    await userEvent.click(newThreadButton);
 
     // onCreateThread should be called with the thread name from the mock
     expect(mockCreateThread).toHaveBeenCalledWith('New Thread from Mock');

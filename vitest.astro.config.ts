@@ -8,10 +8,10 @@ export default getViteConfig({
     name: 'astro', // Name of this test configuration
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    include: ['src/**/*.test.*'],
-    exclude: ['src/**/react/*.test.*'],
+    include: ['src/**/*.astro.test.ts'],
+    //exclude: ['src/**/react/*.test.*'],
     coverage: {
-      include: ['src/**/*.astro', 'src/**/*.ts', 'src/**/*.tsx'],
+      include: ['src/**/*.astro'],
       provider: 'v8',
     },
     mockReset: true, // Reset mocks between each test

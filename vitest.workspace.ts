@@ -7,4 +7,7 @@ export default defineWorkspace([
 
   // Config for React components
   'vitest.react.config.ts',
+
+  // Config for TypeScript components
+  'vitest.typescript.config.ts',
 ]);

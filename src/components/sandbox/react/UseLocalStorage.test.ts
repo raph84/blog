@@ -164,7 +164,7 @@ describe('useLocalStorage hook', () => {
 
     // Value should be updated in state but error logged
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error writing to localStorage:',
+      'Error synchronizing with localStorage:',
       expect.any(Error),
     );
 
