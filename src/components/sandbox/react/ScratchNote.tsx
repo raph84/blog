@@ -1,10 +1,9 @@
 // src/components/sandbox/react/ScratchNote.tsx
-import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import ScratchNoteThreadSelector from './ScratchNoteThreadSelector';
 import ScratchNoteInput from './ScratchNoteInput';
-import ScratchNoteList from './ScratchNoteList'
+import ScratchNoteList from './ScratchNoteList';
 import ScratchNoteArchive from './ScratchNoteArchive';
 import { useScratchNoteThread } from './hooks/useScratchNoteThread';
 import { useLocalStorage } from './UseLocalStorage';

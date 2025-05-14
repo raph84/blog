@@ -15,7 +15,6 @@ import {
   Code,
   FileText,
   BookOpen,
-  Tags,
   LayoutGrid,
   ListFilter,
 } from 'lucide-react';

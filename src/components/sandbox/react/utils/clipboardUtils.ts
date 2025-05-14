@@ -3,7 +3,7 @@ import { isTestEnvironment } from './domUtils';
 
 export const copyToClipboard = (
   content: string,
-  successMessage: string = 'Copied to clipboard!',
+  successMessage = 'Copied to clipboard!',
 ): void => {
   if (isTestEnvironment()) return;
 

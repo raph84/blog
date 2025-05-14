@@ -8,8 +8,8 @@ import type { ScratchNoteThread } from '@/schemas/scratchNoteThread';
 interface ScratchNoteThreadSelectorProps {
   threads: ScratchNoteThread[];
   activeThreadId: string;
-  onSelectThread: (threadId: string) => void;
-  onCreateThread: (threadName: string) => void;
+  onSelectThread: (_threadId: string) => void;
+  onCreateThread: (_threadName: string) => void;
 }
 
 function ScratchNoteThreadSelector({

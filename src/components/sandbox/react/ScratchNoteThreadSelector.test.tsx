@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ScratchNoteThreadSelector from './ScratchNoteThreadSelector';
 import type { ScratchNoteThread } from '@/schemas/scratchNoteThread';
@@ -9,7 +9,11 @@ import * as React from 'react';
 
 // Mock the ScratchNoteCreateThreadDialog component
 vi.mock('./ScratchNoteCreateThreadDialog', () => ({
-  default: ({ onCreateThread }: { onCreateThread: (name: string) => void }) => (
+  default: ({
+    onCreateThread,
+  }: {
+    onCreateThread: (_name: string) => void;
+  }) => (
     <button
       data-testid="mock-create-thread-dialog"
       onClick={() => onCreateThread('New Thread from Mock')}

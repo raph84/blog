@@ -111,7 +111,7 @@ describe('ScratchNoteList', () => {
   });
 
   it('returns null when notes is undefined', () => {
-    // @ts-ignore - Testing an invalid input to ensure proper handling
+    // @ts-expect-error - Testing an invalid input to ensure proper handling
     const { container } = render(<ScratchNoteList notes={undefined} />);
 
     // The component should return null, resulting in an empty container
