@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.1](https://github.com/raph84/blog/compare/v2.10.0...v2.10.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* update deps versions ([8c00609](https://github.com/raph84/blog/commit/8c00609b8bbb081491689156fdcaffdb569c7ab1))
+
 ## [2.10.0](https://github.com/raph84/blog/compare/v2.9.0...v2.10.0) (2025-05-14)
 
 
