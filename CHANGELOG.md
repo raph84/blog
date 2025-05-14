@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0](https://github.com/raph84/blog/compare/v2.9.0...v2.10.0) (2025-05-14)
+
+
+### Features
+
+* scratchnote threads ([54d8e98](https://github.com/raph84/blog/commit/54d8e98c41d2182dc2ce2bfb97d3eee0b80dcc94))
+
 ## [2.9.0](https://github.com/raph84/blog/compare/v2.8.0...v2.9.0) (2025-04-23)
 
 
