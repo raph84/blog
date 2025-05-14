@@ -8,7 +8,8 @@ describe('Footer', () => {
     const container = await AstroContainer.create();
     const result = await container.renderToString(Footer, {});
 
-    expect(result).toEqual(expect.stringMatching(/v\d\.\d\.\d/));
+    // Use a more flexible regex that matches versions with multiple digits
+    expect(result).toEqual(expect.stringMatching(/v\d+\.\d+\.\d+/));
   });
   test('Footer with version from package.json', async () => {
     const container = await AstroContainer.create();
